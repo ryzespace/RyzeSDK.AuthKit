@@ -1,0 +1,106 @@
+name: 🚀 Build RyzeSpace Auth Microservice
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  SOLUTION_FILE: 'Microservices.Auth.sln'
+  HOST_PROJECT: 'Host/Host.csproj'
+
+jobs:
+  build:
+    name: 🔨 Build on ${{ matrix.os }} (${{ matrix.runtime }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runtime: linux-x64
+          - os: windows-latest
+            runtime: win-x64
+          - os: macos-latest
+            runtime: osx-x64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      # --- Cache NuGet packages ---
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Restore, Build, Publish
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
+
+      - name: Build solution
+        run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
+
+      - name: Publish application
+        run: |
+          dotnet publish ${{ env.HOST_PROJECT }} `
+            --configuration Release `
+            --runtime ${{ matrix.runtime }} `
+            --self-contained false `
+            --output ./publish/${{ matrix.runtime }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-service-${{ matrix.runtime }}
+          path: ./publish/${{ matrix.runtime }}
+
+      # Discord notification
+      - name: Notify Discord
+        if: always()
+        env:
+          STATUS_EMOJI: ${{ job.status == 'success' && '🟢' || '🔴' }}
+          DISCORD_COLOR: ${{ job.status == 'success' && '3066993' || '15158332' }}
+        run: |
+          $commitMessage = (git log -1 --pretty=%B).Trim()
+          if (-not $commitMessage) { $commitMessage = "<no commit message>" }
+          $shortSha = "${{ github.sha }}".Substring(0,7)
+          $utcDate = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm 'UTC'")
+
+          $payload = @{
+            embeds = @(
+              @{
+                title = "${{ github.workflow }} $env:STATUS_EMOJI"
+                color = $env:DISCORD_COLOR
+                fields = @(
+                  @{
+                    name = "Project Info"
+                    value = "• **Project**: RyzeSpace Auth Microservice`n• **Environment**: $(${{ github.event_name }} -eq 'push' ? 'Production' : 'PR Preview')`n• **Branch**: `${{ github.ref_name }}``n• **Commit**: [$shortSha](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})`n• **Message**: `$commitMessage"
+                    inline = $true
+                  },
+                  @{
+                    name = "Build Details"
+                    value = "• **Artifact**: `auth-service-${{ matrix.runtime }}``n• **Runtime**: `${{ matrix.runtime }}``n• **Ports**: REST 5000 / gRPC 5001`n• **Triggered by**: ${{ github.actor }}"
+                    inline = $true
+                  }
+                )
+                footer = @{
+                  text = "${{ matrix.os }} | $utcDate"
+                  icon_url = "https://raw.githubusercontent.com/${{ github.repository }}/main/appicon.png"
+                }
+                url = "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              }
+            )
+          } | ConvertTo-Json -Depth 5
+
+          Invoke-RestMethod -Uri "${{ secrets.DISCORD_WEBHOOK_URL }}" -Method Post -Body $payload -ContentType 'application/json'
+        shell: pwsh

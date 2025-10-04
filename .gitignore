@@ -1,0 +1,4 @@
+/certs/devcert.pfx
+bin/
+obj/
+.idea/
