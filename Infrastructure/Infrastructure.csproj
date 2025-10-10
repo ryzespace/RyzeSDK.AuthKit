@@ -14,9 +14,14 @@
         <PackageReference Include="Grpc.Tools" Version="2.72.0">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="WolverineFx" Version="4.12.2" />
     </ItemGroup>
 
     <ItemGroup>
         <Protobuf Include="Grpc\protos\**\*.proto" ProtoRoot="Grpc" GrpcServices="Both" Access="Public" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Application\Application.csproj" />
     </ItemGroup>
 </Project>

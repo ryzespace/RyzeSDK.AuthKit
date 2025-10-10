@@ -7,4 +7,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="UseCase\Commands\Validations\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Keycloak.NETCore.Client" Version="1.0.2" />
+      <PackageReference Include="WolverineFx" Version="4.12.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
+    </ItemGroup>
+
 </Project>
