@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using Application.UseCase.Commands.Requests;
-using Domain.Entities;
+using Domain.ValueObject;
 using FluentValidation;
 using Infrastructure.Restful.Controllers;
 
@@ -59,7 +59,7 @@ public static class ApplicationInitialization
         new[]
         {
             typeof(ApplicationInitialization).Assembly,  // Host
-            typeof(UserEntities).Assembly,               // Domain
+            typeof(UserId).Assembly,               // Domain
             typeof(UserController).Assembly,            // Infrastructure
             typeof(RegisterUserCommand).Assembly        // Application
         }.Distinct().ToArray();

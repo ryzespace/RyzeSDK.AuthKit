@@ -3,6 +3,7 @@ using Application.Services;
 using Domain.Interfaces;
 using Domain.Repositories;
 using Host.Configuration;
+using Host.Middleware;
 using Infrastructure.Keycloak.Providers;
 using Infrastructure.Keycloak.Repositories;
 
@@ -26,5 +27,5 @@ var app = builder.Build();
 app.ConfigureMiddleware() 
     .MapAppEndpoints()
     .MapGrpcEndpoints();
-
+app.UseMiddleware<ValidationExceptionMiddleware>();
 app.Run();

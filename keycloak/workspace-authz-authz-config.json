@@ -1,0 +1,156 @@
+{
+  "allowRemoteResourceManagement": true,
+  "policyEnforcementMode": "ENFORCING",
+  "resources": [
+    {
+      "name": "Default Resource",
+      "type": "urn:workspace-authz:resources:default",
+      "ownerManagedAccess": false,
+      "attributes": {},
+      "_id": "0ef1e6d5-6155-40e5-8eda-6f5bf2cbb8d8",
+      "uris": [
+        "/*"
+      ]
+    },
+    {
+      "name": "workspaces",
+      "type": "urn:workspace-authz:resource:workspaces",
+      "ownerManagedAccess": false,
+      "displayName": "workspaces",
+      "attributes": {},
+      "_id": "569ae7be-270f-42ad-beca-bafb73ed7cf6",
+      "uris": [
+        "workspaces"
+      ],
+      "scopes": [
+        {
+          "name": "workspaces:create"
+        },
+        {
+          "name": "workspaces:read"
+        }
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "id": "f35cfc5a-3030-4e4b-9441-d1279d981720",
+      "name": "Default Policy",
+      "description": "A policy that grants access only for users within this realm",
+      "type": "js",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+      }
+    },
+    {
+      "id": "3e61729f-a5de-4b18-8364-03773d620c2a",
+      "name": "Workspace has Owner through access group",
+      "type": "js",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "code": "var resource = $evaluation.getPermission().getResource();\r\n\r\nif (resource.type == \"urn:workspace-authz:resource:workspaces\"\r\n    && resource.name != \"workspaces\") {\r\n    var identity = $evaluation.context.getIdentity();\r\n    var username = identity.getAttributes()\r\n        .getValue(\"preferred_username\").asString(0);\r\n\r\n    var accessGroup = resource\r\n        .getAttribute(username);\r\n\r\n    print(accessGroup);\r\n    if (accessGroup && accessGroup.contains(\"Owner\")) {\r\n        $evaluation.grant();\r\n    }\r\n    // var accessGroup = resource.getAttribute(username);\r\n\r\n    // if (accessGroup && accessGroup[0] == \"Owner\") {\r\n    //     $evaluation.grant();\r\n    // }\r\n}"
+      }
+    },
+    {
+      "id": "74778dbe-8994-4117-9b44-771a727a21d0",
+      "name": "Require Manager role",
+      "type": "role",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "roles": "[{\"id\":\"workspace-authz/Manager\",\"required\":true}]"
+      }
+    },
+    {
+      "id": "5a83be20-2b8a-48b3-b650-ce989a193f21",
+      "name": "Bypass resource ownership",
+      "type": "js",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "code": "var resource = $evaluation.getPermission().getResource();\r\n\r\nif (resource.type == \"urn:workspace-authz:resource:workspaces\"\r\n    && resource.name == \"workspaces\") {\r\n        $evaluation.grant();\r\n}"
+      }
+    },
+    {
+      "id": "da185e57-3361-4910-92cd-d482fae15ba0",
+      "name": "Default Permission",
+      "description": "A permission that applies to the default resource type",
+      "type": "resource",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "defaultResourceType": "urn:workspace-authz:resources:default",
+        "applyPolicies": "[\"Default Policy\"]"
+      }
+    },
+    {
+      "id": "dacb259b-d3ed-4a60-9448-4a1b5efcfcaf",
+      "name": "Access Workspaces",
+      "type": "resource",
+      "logic": "POSITIVE",
+      "decisionStrategy": "AFFIRMATIVE",
+      "config": {
+        "defaultResourceType": "urn:workspace-authz:resource:workspaces",
+        "applyPolicies": "[\"Workspace has Owner through access group\",\"Bypass resource ownership\"]"
+      }
+    },
+    {
+      "id": "ec29520a-0fa2-48aa-9b79-87e173ad6c84",
+      "name": "Create workspaces",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "scopes": "[\"workspaces:create\"]",
+        "applyPolicies": "[\"Require Manager role\"]"
+      }
+    },
+    {
+      "id": "f555eba2-d2e6-4aff-a6ae-d12c15255685",
+      "name": "Delete workspaces",
+      "type": "scope",
+      "logic": "POSITIVE",
+      "decisionStrategy": "UNANIMOUS",
+      "config": {
+        "scopes": "[\"workspaces:delete\"]",
+        "applyPolicies": "[\"Require Manager role\",\"Workspace has Owner through access group\"]"
+      }
+    }
+  ],
+  "scopes": [
+    {
+      "id": "5d0c86b3-f57b-43d3-a5b8-ef46c05a0447",
+      "name": "workspaces:read",
+      "displayName": "workspaces:read"
+    },
+    {
+      "id": "ac2eb59e-d9f6-46d4-8b1b-28be6d634cd1",
+      "name": "read",
+      "displayName": "read"
+    },
+    {
+      "id": "f79fdb78-ad4f-497b-97a9-0d6155a3030c",
+      "name": "delete",
+      "displayName": "delete"
+    },
+    {
+      "id": "8ebd479c-f68e-4055-b903-119dddbeecac",
+      "name": "create",
+      "displayName": "create"
+    },
+    {
+      "id": "9823109b-c2f7-4357-96a4-d60934582841",
+      "name": "workspaces:create",
+      "displayName": "workspaces:create"
+    },
+    {
+      "id": "31ac2698-a0f6-4828-bf52-2e20094f3e0b",
+      "name": "workspaces:delete",
+      "displayName": "workspaces:delete"
+    }
+  ],
+  "decisionStrategy": "UNANIMOUS"
+}

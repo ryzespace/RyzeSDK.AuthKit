@@ -73,6 +73,8 @@ public class KeycloakService(
     {
         return new KcUser
         {
+            FirstName = dtoUser.FirstName,
+            LastName = dtoUser.LastName,
             UserName = dtoUser.Username,
             Email = dtoUser.Email,
             Enabled = true,
