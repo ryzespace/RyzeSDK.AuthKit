@@ -7,10 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.64.0"/>
+        <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
+        <PackageReference Include="Keycloak.NETCore.Client" Version="1.0.2" />
+        <PackageReference Include="Scrutor" Version="6.1.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="9.0.6" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.6" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.6" />
+
+        <PackageReference Include="WolverineFx" Version="4.12.2" />
+        <PackageReference Include="WolverineFx.FluentValidation" Version="4.12.2" />
     </ItemGroup>
 
     <ItemGroup>

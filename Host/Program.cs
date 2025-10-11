@@ -1,68 +1,30 @@
-using Host.Services;
-using Infrastructure.Controllers;
+using Application.Interfaces;
+using Application.Services;
+using Domain.Interfaces;
+using Domain.Repositories;
+using Host.Configuration;
+using Infrastructure.Keycloak.Providers;
+using Infrastructure.Keycloak.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    // REST + Swagger (HTTPS)
-    options.ListenAnyIP(5000, listenOptions =>
-    {
-        listenOptions.UseHttps("/root/certs/devcert.pfx", "YourPassword");
-        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http1AndHttp2;
-    });
+// === Core Config ===
+builder.Services.ConfigureApp(builder.Configuration, builder.Environment)
+    .AddGrpcServices()
+    .AddRestfulServices()
+    .AddKeycloakServices()
+    .AddScoped<IKeycloakTokenProvider, KeycloakTokenProvider>()
+    .AddScoped<IKeycloakUserRepository, KeycloakUserRepository>()
+    .AddScoped<IKeycloakService, KeycloakService>();
 
-    // gRPC only (HTTPS)
-    options.ListenAnyIP(5001, listenOptions =>
-    {
-        listenOptions.UseHttps("/root/certs/devcert.pfx", "YourPassword");
-        listenOptions.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2;
-    });
-});
+builder.Host.ConfigureWolverine(builder.Configuration);
+builder.WebHost.ConfigureKestrelServer();
 
-// Grpc
-builder.Services.AddGrpc();
-
-// === REST API + Swagger ===
-builder.Services.AddControllers()
-    .AddApplicationPart(typeof(AuthController).Assembly);
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+// === Pipeline ===
 var app = builder.Build();
 
-app.UseRouting();
-app.UseAuthentication();
-app.UseAuthorization();
+app.ConfigureMiddleware() 
+    .MapAppEndpoints()
+    .MapGrpcEndpoints();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.MapControllers();       // REST
-app.MapGet("/", () => Results.Json(new
-{
-    name = "Auth Microservice",
-    description = "Core service for authentication, authorization and identity management.",
-    endpoints = new
-    {
-        rest = new
-        {
-            baseUrl = "https://localhost:5000/api",
-            swagger = "https://localhost:5000/swagger"
-        },
-        grpc = new
-        {
-            baseUrl = "https://localhost:5001",
-            note = "Use gRPC client to interact with this service."
-        }
-    },
-    version = "1.0.0",
-    environment = app.Environment.EnvironmentName
-}));
-
-
-app.MapGrpcService<GreeterService>(); // gRPC server
 app.Run();
