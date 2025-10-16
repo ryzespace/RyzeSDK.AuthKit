@@ -8,11 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Keycloak.NETCore.Client" Version="1.0.2" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="Entities\" />
+      <Folder Include="Interfaces\" />
+      <Folder Include="Repositories\" />
     </ItemGroup>
 
 </Project>

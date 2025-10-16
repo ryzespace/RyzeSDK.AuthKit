@@ -1,24 +1,16 @@
-﻿using Application.Services;
-using NETCore.Keycloak.Client.Authentication;
-using NETCore.Keycloak.Client.HttpClients.Implementation;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Application.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 
 namespace Host.Configuration;
 
-/// <summary>
-/// Provides extension methods to configure Keycloak services and authentication in the DI container.
-/// </summary>
-/// <remarks>
-/// <list type="bullet">
-/// <item><description>Registers <see cref="KeycloakSettings"/> and <see cref="KeycloakClient"/> as singletons.</description></item>
-/// <item><description>Adds HTTP client support required by KeycloakClient.</description></item>
-/// <item><description>Configures Keycloak authentication using the JWT Bearer scheme with provided realm and client credentials.</description></item>
-/// <item><description>Outputs configuration info to console for quick verification.</description></item>
-/// </list>
-/// </remarks>
 public static class KeycloakConfiguration
 {
     /// <summary>
-    /// Adds Keycloak services, client, and authentication to the provided <see cref="IServiceCollection"/>.
+    /// Adds Keycloak authentication to the provided <see cref="IServiceCollection"/>.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
     /// <returns>The configured <see cref="IServiceCollection"/> for method chaining.</returns>
@@ -34,19 +26,73 @@ public static class KeycloakConfiguration
 
         services.AddSingleton(settings);
         services.AddHttpClient();
-        services.AddSingleton(_ => new KeycloakClient(settings.BaseUrl));
-
-        services.AddKeycloakAuthentication(
-            authenticationScheme: "Bearer",
-            keycloakConfig: options =>
+       
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
             {
-                options.Url = settings.BaseUrl;
-                options.Realm = settings.Realm;
-                options.Issuer = $"{settings.BaseUrl}/realms/{settings.Realm}";
-                options.Resource = settings.ClientId;
-                options.RequireSsl = false;
-            },
-            configureOptions: opts => opts.SaveToken = true);
+                options.Authority = $"{settings.BaseUrl}/realms/{settings.Realm}";
+                options.Audience = "workspace-authz";
+                options.RequireHttpsMetadata = false;
+               
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = true, 
+                    ValidAudience = "workspace-authz",
+                    ValidIssuer = $"http://localhost:8081/realms/{settings.Realm}",
+                    ValidateLifetime = true,
+                    NameClaimType = "preferred_username",
+                    RoleClaimType = ClaimTypes.Role,
+                };
+                
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = ctx =>
+                    {
+                        if (ctx.SecurityToken is JwtSecurityToken jwt)
+                        {
+                            var identity = ctx.Principal!.Identity as ClaimsIdentity;
+
+                            // Realm roles
+                            var realmRoles = jwt.Claims.FirstOrDefault(c => c.Type == "realm_access")?.Value;
+                            if (realmRoles != null)
+                            {
+                                var roles = JObject.Parse(realmRoles)["roles"]?.ToObject<string[]>();
+                                if (roles != null)
+                                {
+                                    foreach (var role in roles)
+                                        identity!.AddClaim(new Claim(ClaimTypes.Role, role));
+                                }
+                            }
+
+                            // Resource roles (np. account)
+                            var resourceRoles = jwt.Claims.FirstOrDefault(c => c.Type == "resource_access")?.Value;
+                            if (resourceRoles != null)
+                            {
+                                var roles = JObject.Parse(resourceRoles)["account"]?["roles"]?.ToObject<string[]>();
+                                if (roles != null)
+                                {
+                                    foreach (var role in roles)
+                                        identity!.AddClaim(new Claim(ClaimTypes.Role, role));
+                                }
+                            }
+                            
+                            var resourceAccess = JObject.Parse(jwt.Claims
+                                .FirstOrDefault(c => c.Type == "resource_access")?.Value ?? "{}");
+
+                            if (resourceAccess["workspace-authz"]?["roles"] is JArray roless)
+                            {
+                                foreach (var role in roless)
+                                    identity!.AddClaim(new Claim(ClaimTypes.Role, role.ToString()));
+                            }
+
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+            });
+            
 
         Console.WriteLine($"✅ Keycloak configured at: {settings.BaseUrl}/realms/{settings.Realm}");
         return services;

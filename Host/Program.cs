@@ -1,11 +1,5 @@
-using Application.Interfaces;
-using Application.Services;
-using Domain.Interfaces;
-using Domain.Repositories;
 using Host.Configuration;
 using Host.Middleware;
-using Infrastructure.Keycloak.Providers;
-using Infrastructure.Keycloak.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureApp(builder.Configuration, builder.Environment)
     .AddGrpcServices()
     .AddRestfulServices()
-    .AddKeycloakServices()
-    .AddScoped<IKeycloakTokenProvider, KeycloakTokenProvider>()
-    .AddScoped<IKeycloakUserRepository, KeycloakUserRepository>()
-    .AddScoped<IKeycloakService, KeycloakService>();
+    .AddKeycloakServices();
 
 builder.Host.ConfigureWolverine(builder.Configuration);
 builder.WebHost.ConfigureKestrelServer();

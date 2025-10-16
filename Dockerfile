@@ -5,14 +5,14 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /src
 
-COPY ["Microservices.Auth.sln", "."]
+COPY ["RyzeSDK.AuthKit.sln", "."]
 
 COPY ["Host/Host.csproj", "Host/"]
 COPY ["Application/Application.csproj", "Application/"]
 COPY ["Domain/Domain.csproj", "Domain/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 
-RUN dotnet restore "Microservices.Auth.sln"
+RUN dotnet restore "RyzeSDK.AuthKit.sln"
 
 COPY . .
 RUN mkdir /root/certs

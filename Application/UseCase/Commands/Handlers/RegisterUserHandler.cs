@@ -1,12 +1,9 @@
-﻿using Application.DTO;
-using Application.Interfaces;
-using Application.UseCase.Commands.Requests;
+﻿using Application.UseCase.Commands.Requests;
 
 namespace Application.UseCase.Commands.Handlers;
 
 /// <summary>
 /// Handler responsible for processing <see cref="RegisterUserCommand"/> 
-/// by creating a new user in Keycloak via <see cref="IKeycloakService"/>.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
@@ -14,7 +11,7 @@ namespace Application.UseCase.Commands.Handlers;
 /// <item><description>Delegates user creation to <see cref="IKeycloakService.CreateUserAsync"/>.</description></item>
 /// </list>
 /// </remarks>
-public class RegisterUserHandler(IKeycloakService keycloak)
+public class RegisterUserHandler
 {
     /// <summary>
     /// Handles the registration command by creating a user in Keycloak.
@@ -24,14 +21,6 @@ public class RegisterUserHandler(IKeycloakService keycloak)
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        var user = new KeycloakUserDto(
-            command.FirstName,
-            command.LastName,
-            command.Username,
-            command.Email,
-            command.Password
-        );
-        
-        await keycloak.CreateUserAsync(user, cancellationToken);
+       
     }
 }

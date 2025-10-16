@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Restful.Controllers;
+using Microsoft.OpenApi.Models;
 
 namespace Host.Configuration;
 
@@ -7,7 +8,7 @@ namespace Host.Configuration;
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item><description>Registers controllers from the <see cref="AuthController"/> assembly.</description></item>
+/// <item><description>Registers controllers from the <see cref="SdkAuthController"/> assembly.</description></item>
 /// <item><description>Adds API explorer support for endpoint metadata.</description></item>
 /// <item><description>Registers Swagger generator for API documentation.</description></item>
 /// </list>
@@ -22,10 +23,35 @@ public static class RestfulConfiguration
     public static IServiceCollection AddRestfulServices(this IServiceCollection services)
     {
         services.AddControllers()
-            .AddApplicationPart(typeof(AuthController).Assembly);
+            .AddApplicationPart(typeof(SdkAuthController).Assembly);
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+
+        services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Insert JWT token in the format: Bearer {token}"
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
 
         return services;
     }

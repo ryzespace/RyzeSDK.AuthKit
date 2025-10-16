@@ -49,7 +49,7 @@ public static class ApplicationInitialization
     private static void AddServices(this IServiceCollection services)
     {
         services.AddControllers()
-                .AddApplicationPart(typeof(UserController).Assembly);
+                .AddApplicationPart(typeof(SdkAuthController).Assembly);
 
         services.AddFluentValidation()
                 .AddCustomDependencyInjection();
@@ -60,7 +60,7 @@ public static class ApplicationInitialization
         {
             typeof(ApplicationInitialization).Assembly,  // Host
             typeof(UserId).Assembly,               // Domain
-            typeof(UserController).Assembly,            // Infrastructure
+            typeof(SdkAuthController).Assembly,            // Infrastructure
             typeof(RegisterUserCommand).Assembly        // Application
         }.Distinct().ToArray();
 
