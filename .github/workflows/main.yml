@@ -1,4 +1,4 @@
-name: 🚀 Build RyzeSpace Auth Microservice
+name: 🚀 Build RyzeSpace Auth Microservice (Dev Accounts)
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  SOLUTION_FILE: 'Microservices.Auth.sln'
+  SOLUTION_FILE: 'RyzeSDK.AuthKit.sln'
   HOST_PROJECT: 'Host/Host.csproj'
 
 jobs:
