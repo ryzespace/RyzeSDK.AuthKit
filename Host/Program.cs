@@ -1,5 +1,4 @@
 using Host.Configuration;
-using Host.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,7 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.ConfigureApp(builder.Configuration, builder.Environment)
     .AddGrpcServices()
     .AddRestfulServices()
-    .AddKeycloakServices();
+    .AddKeycloakServices()
+    .AddAuthKitDeveloperToken();
 
 builder.Host.ConfigureWolverine(builder.Configuration);
 builder.WebHost.ConfigureKestrelServer();
@@ -18,5 +18,5 @@ var app = builder.Build();
 app.ConfigureMiddleware() 
     .MapAppEndpoints()
     .MapGrpcEndpoints();
-app.UseMiddleware<ValidationExceptionMiddleware>();
+
 app.Run();

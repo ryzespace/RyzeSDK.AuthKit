@@ -41,12 +41,28 @@ public static class RestfulConfiguration
                 Description = "Insert JWT token in the format: Bearer {token}"
             });
 
+            // 2️⃣ AuthKit developer token
+            c.AddSecurityDefinition("X-Developer-Token", new OpenApiSecurityScheme
+            {
+                Name = "X-Developer-Token",
+                Type = SecuritySchemeType.ApiKey,
+                In = ParameterLocation.Header,
+                Description = "AuthKit developer JWT token"
+            });
+            
             c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
                     new OpenApiSecurityScheme
                     {
                         Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                    },
+                    Array.Empty<string>()
+                },
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "X-Developer-Token" }
                     },
                     Array.Empty<string>()
                 }

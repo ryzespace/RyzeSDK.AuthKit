@@ -1,4 +1,6 @@
-﻿namespace Host.Configuration;
+﻿using Host.Middleware;
+
+namespace Host.Configuration;
 
 /// <summary>
 /// Provides extension methods to configure the application's middleware pipeline.
@@ -20,6 +22,9 @@ public static class AppMiddlewareConfiguration
     public static WebApplication ConfigureMiddleware(this WebApplication app)
     {
         app.UseRouting();
+        
+        app.UseMiddleware<ValidationExceptionMiddleware>();
+        app.UseMiddleware<DeveloperTokenMiddleware>();
         
         app.UseAuthentication();
         app.UseAuthorization();

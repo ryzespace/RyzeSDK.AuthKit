@@ -61,7 +61,7 @@ public static class ApplicationInitialization
             typeof(ApplicationInitialization).Assembly,  // Host
             typeof(UserId).Assembly,               // Domain
             typeof(SdkAuthController).Assembly,            // Infrastructure
-            typeof(RegisterUserCommand).Assembly        // Application
+            typeof(CreateDeveloperTokenCommand).Assembly        // Application
         }.Distinct().ToArray();
 
     private static IServiceCollection AddFluentValidation(this IServiceCollection services)

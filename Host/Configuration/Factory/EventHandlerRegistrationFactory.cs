@@ -17,6 +17,6 @@ public static class EventHandlerRegistrationFactory
 {
     public static void IncludeEventHandlers(this WolverineOptions opts)
     {
-        opts.Discovery.IncludeAssembly(typeof(RegisterUserHandler).Assembly);
+        opts.Discovery.IncludeAssembly(typeof(CreateDeveloperTokenHandler).Assembly);
     }
 }
