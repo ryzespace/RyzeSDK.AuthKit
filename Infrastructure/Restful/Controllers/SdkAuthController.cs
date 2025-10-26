@@ -1,4 +1,5 @@
-﻿using Application.DTO;
+﻿using System.Security.Claims;
+using Application.DTO;
 using Application.UseCase.Commands.Requests;
 using Domain.Entities;
 using Infrastructure.Restful.DTO;
@@ -13,13 +14,13 @@ namespace Infrastructure.Restful.Controllers;
 public class SdkAuthController(IMessageBus messageBus) : ControllerBase
 {
     [HttpPost("tokens")]
-   // [Authorize(Roles = "User")]
+    [Authorize(Roles = "User")]
     public async Task<IActionResult> Register([FromBody] CreateTokenRequest request)
     {
-        var userId2 = User.FindFirst("sub")?.Value;
+        var userId = new Guid(User.FindFirst("sub")?.Value!);
 
 
-        var userId = new Guid("0f9b2090-949a-45b2-a924-20cafcd3f864");
+       // var userId = new Guid("0f9b2090-949a-45b2-a924-20cafcd3f864");
         
         var lifetime = request.LifetimeDays.HasValue 
             ? TimeSpan.FromDays(request.LifetimeDays.Value) 
@@ -74,5 +75,20 @@ public class SdkAuthController(IMessageBus messageBus) : ControllerBase
     public IActionResult DeleteDevScopes()
     {
         return Ok("Developer token valid and has deletevm scope");
+    }
+    
+    [HttpGet("dev/update")]
+    [Authorize(Policy = "DeveloperScope:update")]
+    public IActionResult UpdateDevScopes()
+    {
+        return Ok("update scope");
+    }
+    
+    [HttpGet("debug/roles")]
+    public IActionResult Roles()
+    {
+        return Ok(User.Claims
+            .Where(c => c.Type == ClaimTypes.Role)
+            .Select(c => c.Value));
     }
 }

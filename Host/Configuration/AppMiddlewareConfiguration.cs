@@ -24,10 +24,10 @@ public static class AppMiddlewareConfiguration
         app.UseRouting();
         
         app.UseMiddleware<ValidationExceptionMiddleware>();
-        app.UseMiddleware<DeveloperTokenMiddleware>();
-        
         app.UseAuthentication();
+        app.UseMiddleware<DeveloperTokenMiddleware>();
         app.UseAuthorization();
+
         
         if (app.Environment.IsDevelopment())
         {

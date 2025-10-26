@@ -41,7 +41,6 @@ public static class RestfulConfiguration
                 Description = "Insert JWT token in the format: Bearer {token}"
             });
 
-            // 2️⃣ AuthKit developer token
             c.AddSecurityDefinition("X-Developer-Token", new OpenApiSecurityScheme
             {
                 Name = "X-Developer-Token",

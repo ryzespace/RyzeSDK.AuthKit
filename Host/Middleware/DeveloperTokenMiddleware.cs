@@ -32,11 +32,15 @@ public class DeveloperTokenMiddleware(RequestDelegate next, ILogger<DeveloperTok
 
                     devIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, principal.DeveloperId.ToString()));
                     devIdentity.AddClaim(new Claim(ClaimTypes.Name, principal.Name));
-                   
-                    context.User.AddIdentity(devIdentity);
+                    
+                    var currentUser = context.User;
+                    context.User = new ClaimsPrincipal(currentUser.Identities.Concat([devIdentity]));
 
                     logger.LogInformation("[AuthKit] Developer token validated for {DeveloperId}", principal.DeveloperId);
+                    logger.LogInformation("[AuthKit] IsAuthenticated? {IsAuthenticated}", context.User.Identity?.IsAuthenticated);
+                    logger.LogInformation("[AuthKit] IsInRole(User)? {IsInRole}", context.User.IsInRole("User"));
                 }
+
 
             }
             catch (Exception ex)
