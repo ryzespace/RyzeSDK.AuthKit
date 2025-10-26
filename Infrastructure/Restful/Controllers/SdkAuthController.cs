@@ -1,33 +1,35 @@
 ﻿using System.Security.Claims;
 using Application.DTO;
 using Application.UseCase.Commands.Requests;
-using Domain.Entities;
 using Infrastructure.Restful.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Wolverine;
 
 namespace Infrastructure.Restful.Controllers;
 
 [ApiController]
 [Route("sdk/auth")]
-public class SdkAuthController(IMessageBus messageBus) : ControllerBase
+public class SdkAuthController(IMessageBus messageBus, ILogger<SdkAuthController> logger) : ControllerBase
 {
     [HttpPost("tokens")]
     [Authorize(Roles = "User")]
     public async Task<IActionResult> Register([FromBody] CreateTokenRequest request)
     {
-        var userId = new Guid(User.FindFirst("sub")?.Value!);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("Missing or invalid 'sub' claim");
 
-
-       // var userId = new Guid("0f9b2090-949a-45b2-a924-20cafcd3f864");
+        //return Ok($"User ID: {userId}");
         
         var lifetime = request.LifetimeDays.HasValue 
             ? TimeSpan.FromDays(request.LifetimeDays.Value) 
             : (TimeSpan?)null;
         
         var cmd = new CreateDeveloperTokenCommand(
-            userId,
+            //userId,
+            new Guid(userId!),
             request.Name,
             request.Description,
             request.Scopes,
@@ -48,47 +50,55 @@ public class SdkAuthController(IMessageBus messageBus) : ControllerBase
         });
     }
 
-    [HttpGet("tokens")]
-    public async Task<IActionResult> List([FromQuery] string developerId)
+    [HttpPost("client/{key}")]
+    public async Task<IActionResult> Client(string key)
     {
-        if (!Guid.TryParse(developerId, out var devId))
-            return BadRequest("Invalid DeveloperId");
-
-        return Ok(new { message = "List successful developerID: " + devId });
+        var cmd = new ClientAuthTokenCommand(
+            key
+        );
+        await messageBus.InvokeAsync(cmd);
+        
+        return Ok(new 
+        {
+                scopes = "scopes",
+                createdAt = "createdAt",
+                expiresAt = "expiresAt",
+                isExpired = "isExpired"
+         });   
     }
 
-    [HttpPost("tokens/{id:guid}/revoke")]
-    public async Task<IActionResult> Revoke(Guid id)
-    {
-        return NoContent();
-    }
-    
-    [HttpGet("dev/check")]
-    [Authorize(Policy = "DeveloperScope:createvm")]
-    public IActionResult CheckDevScope()
-    {
-        return Ok("Developer token valid and has createvm scope");
-    }
-    
-    [HttpGet("dev/deletevm")]
-    [Authorize(Policy = "DeveloperScope:deletevm")]
-    public IActionResult DeleteDevScopes()
-    {
-        return Ok("Developer token valid and has deletevm scope");
-    }
-    
-    [HttpGet("dev/update")]
-    [Authorize(Policy = "DeveloperScope:update")]
-    public IActionResult UpdateDevScopes()
-    {
-        return Ok("update scope");
-    }
-    
-    [HttpGet("debug/roles")]
+    [HttpGet("roles")]
+    [Authorize]
     public IActionResult Roles()
     {
-        return Ok(User.Claims
+        var roles = User.Claims
             .Where(c => c.Type == ClaimTypes.Role)
-            .Select(c => c.Value));
+            .Select(c => c.Value)
+            .ToList();
+
+        logger.LogInformation("user {User} has {Count} roles: {Roles}",
+            User.Identity?.Name ?? "unknown", roles.Count, string.Join(", ", roles));
+
+        return Ok(roles);
+    }
+    
+    [HttpGet("debug-auth")]
+    public IActionResult DebugAuth()
+    {
+        var authHeader = Request.Headers["Authorization"].ToString();
+    
+        return Ok(new
+        {
+            HasAuthHeader = !string.IsNullOrEmpty(authHeader),
+            AuthHeaderPrefix = authHeader.Length > 20 ? authHeader.Substring(0, 20) : authHeader,
+            User.Identity?.IsAuthenticated,
+            User.Identity?.AuthenticationType,
+            IdentityType = User.Identity?.GetType().FullName,
+            PrincipalType = User.GetType().FullName,
+            ClaimsCount = User.Claims.Count(),
+            AllClaims = User.Claims.Select(c => new { c.Type, c.Value }).ToList(),
+            RoleClaimsCount = User.Claims.Count(c => c.Type == ClaimTypes.Role),
+            RoleClaims = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList()
+        });
     }
 }

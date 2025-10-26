@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Http;
 
-namespace Host.Middleware;
+namespace Infrastructure.Restful.Middleware;
 
 /// <summary>
 /// Middleware that catches <see cref="ValidationException"/> thrown by FluentValidation

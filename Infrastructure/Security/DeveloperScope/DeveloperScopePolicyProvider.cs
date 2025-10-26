@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Security;
+namespace Infrastructure.Security.DeveloperScope;
 
 /// <summary>
 /// Custom <see cref="IAuthorizationPolicyProvider"/> that dynamically creates policies

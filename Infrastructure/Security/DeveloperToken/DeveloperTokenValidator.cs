@@ -5,7 +5,7 @@ using Application;
 using Application.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Infrastructure.Security;
+namespace Infrastructure.Security.DeveloperToken;
 
 /// <summary>
 /// Validates developer JWT tokens and extracts principal information.

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Infrastructure.Security;
+namespace Infrastructure.Security.DeveloperScope;
 
 /// <summary>
 /// Represents a developer token scope requirement for authorization.

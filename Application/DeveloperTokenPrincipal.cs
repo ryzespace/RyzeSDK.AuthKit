@@ -1,17 +1,10 @@
 namespace Application;
 
-public class DeveloperTokenPrincipal
+public class DeveloperTokenPrincipal(Guid developerId, string name, IEnumerable<string> scopes)
 {
-    public Guid DeveloperId { get; }
-    public string Name { get; }
-    public List<string> Scopes { get; }
-
-    public DeveloperTokenPrincipal(Guid developerId, string name, IEnumerable<string> scopes)
-     {
-        DeveloperId = developerId;
-        Name = name;
-        Scopes = scopes.ToList();
-    }
+    public Guid DeveloperId { get; } = developerId;
+    public string Name { get; } = name;
+    public List<string> Scopes { get; } = scopes.ToList();
 
     public bool HasScope(string scope) => Scopes.Contains(scope);
 }

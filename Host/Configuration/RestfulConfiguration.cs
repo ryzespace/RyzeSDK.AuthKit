@@ -1,4 +1,6 @@
 ﻿using Infrastructure.Restful.Controllers;
+using Infrastructure.Security;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 
 namespace Host.Configuration;
@@ -22,9 +24,7 @@ public static class RestfulConfiguration
     /// <returns>The configured <see cref="IServiceCollection"/> for method chaining.</returns>
     public static IServiceCollection AddRestfulServices(this IServiceCollection services)
     {
-        services.AddControllers()
-            .AddApplicationPart(typeof(SdkAuthController).Assembly);
-
+        services.AddControllers().AddApplicationPart(typeof(SdkAuthController).Assembly);
         services.AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(c =>

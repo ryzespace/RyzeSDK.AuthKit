@@ -1,4 +1,4 @@
-﻿using Host.Middleware;
+﻿using Infrastructure.Restful.Middleware;
 
 namespace Host.Configuration;
 
@@ -9,7 +9,6 @@ namespace Host.Configuration;
 /// <list type="bullet">
 /// <item><description>Configures routing, authentication, and authorization middleware.</description></item>
 /// <item><description>Enables Swagger and SwaggerUI in development environment for API documentation.</description></item>
-/// <item><description>Designed as an extension method to keep <see cref="Program.cs"/> minimal and clean.</description></item>
 /// </list>
 /// </remarks>
 public static class AppMiddlewareConfiguration
@@ -22,7 +21,6 @@ public static class AppMiddlewareConfiguration
     public static WebApplication ConfigureMiddleware(this WebApplication app)
     {
         app.UseRouting();
-        
         app.UseMiddleware<ValidationExceptionMiddleware>();
         app.UseAuthentication();
         app.UseMiddleware<DeveloperTokenMiddleware>();
