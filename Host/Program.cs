@@ -10,6 +10,7 @@ builder.Services.ConfigureApp(builder.Configuration, builder.Environment)
     .AddAuthKitDeveloperToken();
 
 builder.Host.ConfigureWolverine(builder.Configuration);
+//builder.Services.ConfigureMarten(builder.Configuration);
 builder.WebHost.ConfigureKestrelServer();
 
 // === Pipeline ===

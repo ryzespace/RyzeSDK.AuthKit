@@ -20,19 +20,19 @@ public class DeveloperTokenService : IDeveloperTokenService
         var claims = new List<Claim>
         {
             new("sub", token.DeveloperId.ToString()),
-            new("name", token.Name)
+            new("name", token.Name.ToString())
         };
-
+        
         claims.AddRange(
             token.Scopes.Select(
                 scope => new Claim(
-                    "scope", scope
+                    "scope", scope.Name
                 )
             )
         );
 
         var jwt = new JwtSecurityToken(
-            expires: token.ExpiresAt?.UtcDateTime,
+            expires: token.Lifetime.ExpiresAt?.UtcDateTime,
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256),
             claims: claims
         );

@@ -1,6 +1,9 @@
 ﻿using Host.Configuration.Factory;
+using JasperFx;
+using Marten;
 using Wolverine;
 using Wolverine.FluentValidation;
+using Wolverine.Marten;
 
 namespace Host.Configuration;
 
@@ -23,5 +26,28 @@ public static class InfrastructureConfiguration
             opts.UseFluentValidation();
             opts.IncludeEventHandlers();
         });
+    }
+
+    /// <summary>
+    /// Configures Marten document store and integrates it with Wolverine.
+    /// </summary>
+    /// <param name="services">The service collection to add dependencies to.</param>
+    /// <param name="configuration">Application configuration containing Marten connection strings.</param>
+    public static IServiceCollection ConfigureMarten(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddMarten(opts =>
+            {
+                opts.Connection(configuration.GetConnectionString("Marten")!);
+                opts.AutoCreateSchemaObjects = AutoCreate.All;
+            })
+            .IntegrateWithWolverine()
+            .UseLightweightSessions();
+
+        services.AddScoped<IDocumentSession>(sp =>
+            sp.GetRequiredService<IDocumentStore>().LightweightSession());
+
+        return services;
     }
 }

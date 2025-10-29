@@ -21,15 +21,12 @@ public class SdkAuthController(IMessageBus messageBus, ILogger<SdkAuthController
         if (string.IsNullOrEmpty(userId))
             return Unauthorized("Missing or invalid 'sub' claim");
 
-        //return Ok($"User ID: {userId}");
-        
         var lifetime = request.LifetimeDays.HasValue 
             ? TimeSpan.FromDays(request.LifetimeDays.Value) 
             : (TimeSpan?)null;
         
         var cmd = new CreateDeveloperTokenCommand(
-            //userId,
-            new Guid(userId!),
+            new Guid(userId),
             request.Name,
             request.Description,
             request.Scopes,
@@ -44,9 +41,7 @@ public class SdkAuthController(IMessageBus messageBus, ILogger<SdkAuthController
             id = result.Token.Id,
             developerId = result.Token.DeveloperId,
             scopes = result.Token.Scopes,
-            createdAt = result.Token.CreatedAt,
-            expiresAt = result.Token.ExpiresAt,
-            isExpired = result.Token.IsExpired
+            lifetime = result.Token.Lifetime,
         });
     }
 
