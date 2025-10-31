@@ -1,6 +1,4 @@
 ﻿using Infrastructure.Restful.Controllers;
-using Infrastructure.Security;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi.Models;
 
 namespace Host.Configuration;
@@ -30,6 +28,7 @@ public static class RestfulConfiguration
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+            c.EnableAnnotations();
 
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {

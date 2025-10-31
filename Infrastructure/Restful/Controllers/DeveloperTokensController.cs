@@ -6,6 +6,7 @@ using Infrastructure.Restful.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.AspNetCore.Annotations;
 using Wolverine;
 
 namespace Infrastructure.Restful.Controllers;
@@ -22,6 +23,7 @@ namespace Infrastructure.Restful.Controllers;
 /// </remarks>
 [ApiController]
 [Route("sdk/developer-tokens")]
+[SwaggerTag("Operations related to users")]
 public class DeveloperTokensController(IMessageBus messageBus, ILogger<DeveloperTokensController> logger) : ControllerBase
 {
     private Guid? GetUserId() =>
@@ -34,6 +36,11 @@ public class DeveloperTokensController(IMessageBus messageBus, ILogger<Developer
     /// <returns>HTTP 200 with created token info, or 401 if unauthorized.</returns>
     [HttpPost]
     [Authorize(Roles = "User")]
+    [SwaggerOperation(
+        Summary = "Registers a new developer token",
+        Description = "Creates a developer token for the authenticated user. Requires token name, description, scopes, and optional lifetime in days.")]
+    [SwaggerResponse(200, "Returns the created developer token", typeof(DeveloperTokenCreated))]
+    [SwaggerResponse(401, "Unauthorized")]
     public async Task<IActionResult> Register([FromBody] CreateTokenRequest request)
     {
         var userId = GetUserId();
@@ -73,6 +80,12 @@ public class DeveloperTokensController(IMessageBus messageBus, ILogger<Developer
     /// <returns>HTTP 200 if deletion succeeded.</returns>
     [HttpDelete("{tokenId:guid}")]
     [Authorize(Roles = "User")]
+    [SwaggerOperation(
+        Summary = "Deletes a developer token",
+        Description = "Deletes the specified developer token by its unique ID.")]
+    [SwaggerResponse(200, "Token deleted successfully")]
+    [SwaggerResponse(401, "Unauthorized")]
+    [SwaggerResponse(404, "Token not found")]
     public async Task<IActionResult> Delete(Guid tokenId)
     {
         var cmd = new DeleteTokenCommand(tokenId);
@@ -89,6 +102,11 @@ public class DeveloperTokensController(IMessageBus messageBus, ILogger<Developer
     /// <returns>HTTP 200 with a read-only list of <see cref="DeveloperTokenDto"/> or 401 if unauthorized.</returns>
     [HttpGet]
     [Authorize(Roles = "User")]
+    [SwaggerOperation(
+        Summary = "Retrieves all developer tokens",
+        Description = "Returns a read-only list of developer tokens for the authenticated user.")]
+    [SwaggerResponse(200, "List of developer tokens", typeof(IReadOnlyList<DeveloperTokenDto>))]
+    [SwaggerResponse(401, "Unauthorized")]
     public async Task<IActionResult> GetAll()
     {
         var userId = GetUserId();
@@ -109,6 +127,12 @@ public class DeveloperTokensController(IMessageBus messageBus, ILogger<Developer
     /// <returns>HTTP 200 with <see cref="DeveloperTokenDto"/> if found, 404 if not found.</returns>
     [HttpGet("{tokenId:guid}")]
     [Authorize(Roles = "User")]
+    [SwaggerOperation(
+        Summary = "Retrieves a developer token by ID",
+        Description = "Returns a single developer token by its unique ID.")]
+    [SwaggerResponse(200, "Developer token details", typeof(DeveloperTokenDto))]
+    [SwaggerResponse(401, "Unauthorized")]
+    [SwaggerResponse(404, "Token not found")]
     public async Task<IActionResult> GetById(Guid tokenId)
     {
         var query = new GetDeveloperTokenByIdQuery(tokenId);
