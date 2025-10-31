@@ -3,14 +3,14 @@ using Host.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 // === Core Config ===
-builder.Services.ConfigureApp(builder.Configuration, builder.Environment)
+builder.Services.ConfigureApp(builder.Configuration)
     .AddGrpcServices()
     .AddRestfulServices()
     .AddKeycloakServices()
     .AddAuthKitDeveloperToken();
 
-builder.Host.ConfigureWolverine(builder.Configuration);
-//builder.Services.ConfigureMarten(builder.Configuration);
+builder.ConfigureWolverine();
+builder.Services.ConfigureMarten(builder.Configuration);
 builder.WebHost.ConfigureKestrelServer();
 
 // === Pipeline ===

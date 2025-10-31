@@ -17,10 +17,11 @@ namespace Domain.Entities;
 public record DeveloperToken
 {
     public Guid Id { get; } = Guid.NewGuid();
-    public Guid DeveloperId { get; private init; }
-    public TokenName Name { get; private init; } = new("default");
-    public IReadOnlyList<TokenScope> Scopes { get; private init; } = [];
-    public TokenLifetime Lifetime { get; private init; } = new(DateTimeOffset.UtcNow);
+    public Guid DeveloperId { get; init; }
+
+    public TokenName Name { get; init; } = new("default");
+    public IReadOnlyList<TokenScope> Scopes { get; init; } = [];
+    public TokenLifetime Lifetime { get; init; } = new(DateTimeOffset.UtcNow);
     
     public static DeveloperToken Create(
         Guid developerId,
@@ -28,6 +29,7 @@ public record DeveloperToken
         IEnumerable<TokenScope> scopes,
         TimeSpan? lifetime = null)
     {
+        
         var tokenLifetime = new TokenLifetime(
             DateTimeOffset.UtcNow,
             lifetime.HasValue ? DateTimeOffset.UtcNow.Add(lifetime.Value) : null

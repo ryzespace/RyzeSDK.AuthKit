@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Application.Options;
 using Application.UseCase.Commands.Requests;
 using Domain.ValueObject;
 using FluentValidation;
@@ -25,12 +26,10 @@ public static class ApplicationInitialization
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
     /// <param name="configuration">The application <see cref="IConfiguration"/> for settings.</param>
-    /// <param name="environment">The hosting <see cref="IHostEnvironment"/>.</param>
     /// <returns>The configured <see cref="IServiceCollection"/> for method chaining.</returns>
     public static IServiceCollection ConfigureApp(
         this IServiceCollection services,
-        IConfiguration configuration,
-        IHostEnvironment environment)
+        IConfiguration configuration)
     {
         services.AddLogging(logging =>
         {  
@@ -41,6 +40,8 @@ public static class ApplicationInitialization
         services.AddHttpContextAccessor();
 
         AddServices(services);
+        services.Configure<AuthKitOptions>(
+            configuration.GetSection("AuthKit"));
         return services;
     }
 
@@ -49,7 +50,7 @@ public static class ApplicationInitialization
     private static void AddServices(this IServiceCollection services)
     {
         services.AddControllers()
-                .AddApplicationPart(typeof(SdkAuthController).Assembly);
+                .AddApplicationPart(typeof(DeveloperTokensController).Assembly);
 
         services.AddFluentValidation()
                 .AddCustomDependencyInjection();
@@ -59,8 +60,8 @@ public static class ApplicationInitialization
         new[]
         {
             typeof(ApplicationInitialization).Assembly,  // Host
-            typeof(UserId).Assembly,               // Domain
-            typeof(SdkAuthController).Assembly,            // Infrastructure
+            typeof(TokenName).Assembly,               // Domain
+            typeof(DeveloperTokensController).Assembly,            // Infrastructure
             typeof(CreateDeveloperTokenCommand).Assembly        // Application
         }.Distinct().ToArray();
 
@@ -85,7 +86,8 @@ public static class ApplicationInitialization
             "Application.Interfaces",
             "Application.UseCase.Commands.Handlers",
             "Domain.Interfaces",
-            "Infrastructure.Keycloak"
+            "Infrastructure.Keycloak",
+            "Infrastructure.Repositories"
         };
 
         services.Scan(scan => scan

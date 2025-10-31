@@ -1,4 +1,6 @@
-﻿namespace Domain.ValueObject;
+﻿using System.Text.Json.Serialization;
+
+namespace Domain.ValueObject;
 
 /// <summary>
 /// Represents the name of a token.
@@ -11,20 +13,9 @@
 /// <item>Supports implicit conversion from <see cref="string"/> to <see cref="TokenName"/>.</item>
 /// </list>
 /// </remarks>
-public sealed record TokenName
+public readonly record struct TokenName(string Value)
 {
-    private string Value { get; }
-
-    public TokenName(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Token name cannot be null or empty.", nameof(value));
-        if (value.Length > 100)
-            throw new ArgumentException("Token name cannot exceed 100 characters.", nameof(value));
-
-        Value = value.Trim();
-    }
-
-    public static implicit operator TokenName(string value) => new(value);
     public override string ToString() => Value;
+    public static implicit operator string(TokenName t) => t.Value;
+    public static implicit operator TokenName(string s) => new(s);
 }

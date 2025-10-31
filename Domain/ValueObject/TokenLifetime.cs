@@ -13,7 +13,7 @@
 /// </remarks>
 public sealed record TokenLifetime
 {
-    private DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
     public DateTimeOffset? ExpiresAt { get; init; }
 
     public TokenLifetime(DateTimeOffset createdAt, DateTimeOffset? expiresAt = null)

@@ -10,7 +10,7 @@ namespace Host.Configuration;
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item><description>Registers controllers from the <see cref="SdkAuthController"/> assembly.</description></item>
+/// <item><description>Registers controllers from the <see cref="DeveloperTokensController"/> assembly.</description></item>
 /// <item><description>Adds API explorer support for endpoint metadata.</description></item>
 /// <item><description>Registers Swagger generator for API documentation.</description></item>
 /// </list>
@@ -24,7 +24,7 @@ public static class RestfulConfiguration
     /// <returns>The configured <see cref="IServiceCollection"/> for method chaining.</returns>
     public static IServiceCollection AddRestfulServices(this IServiceCollection services)
     {
-        services.AddControllers().AddApplicationPart(typeof(SdkAuthController).Assembly);
+        services.AddControllers().AddApplicationPart(typeof(DeveloperTokensController).Assembly);
         services.AddEndpointsApiExplorer();
 
         services.AddSwaggerGen(c =>

@@ -18,14 +18,19 @@ namespace Host.Configuration;
 public static class InfrastructureConfiguration
 {
     public static void ConfigureWolverine(
-        this ConfigureHostBuilder hostBuilder,
-        IConfiguration configuration)
+        this WebApplicationBuilder  builder)
     {
-        hostBuilder.UseWolverine(opts =>
+        builder.UseWolverine(opts =>
         {
             opts.UseFluentValidation();
             opts.IncludeEventHandlers();
+            
+            opts.Policies.MessageExecutionLogLevel(LogLevel.None);
+            opts.Policies.MessageSuccessLogLevel(LogLevel.None);
         });
+        builder.Logging.AddFilter("Wolverine", LogLevel.None);
+        builder.Logging.AddFilter("Marten", LogLevel.None);
+        builder.Logging.AddFilter("Npgsql", LogLevel.None);
     }
 
     /// <summary>

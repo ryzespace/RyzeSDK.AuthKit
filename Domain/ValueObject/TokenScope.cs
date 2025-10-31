@@ -1,4 +1,6 @@
-﻿namespace Domain.ValueObject;
+﻿using System.Text.Json.Serialization;
+
+namespace Domain.ValueObject;
 
 /// <summary>
 /// Represents a scope assigned to a token.
@@ -10,18 +12,21 @@
 /// <item>Supports implicit conversion from <see cref="string"/> to <see cref="TokenScope"/>.</item>
 /// </list>
 /// </remarks>
-public sealed record TokenScope
+public readonly record struct TokenScope
 {
-    public string Name { get; }
+    public string Value { get; }
 
-    private TokenScope(string name)
+    [JsonConstructor]
+    public TokenScope(string value)
     {
-        if (string.IsNullOrWhiteSpace(name))
-            throw new ArgumentException("Scope name cannot be null or empty.", nameof(name));
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException("Scope name cannot be null or empty.", nameof(value));
 
-        Name = name.Trim().ToLowerInvariant();
+        Value = value.Trim().ToLowerInvariant();
     }
-    
-    public static implicit operator TokenScope(string value) => new(value);
-    public override string ToString() => Name;
+
+    public static implicit operator TokenScope(string s) => new(s);
+    public static implicit operator string(TokenScope s) => s.Value;
+
+    public override string ToString() => Value;
 }
