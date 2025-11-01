@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces;
 using Infrastructure.Restful.Middleware;
+using Infrastructure.Restful.Middleware.Exceptions;
 using Infrastructure.Security;
 using Infrastructure.Security.DeveloperScope;
 using Infrastructure.Security.DeveloperToken;

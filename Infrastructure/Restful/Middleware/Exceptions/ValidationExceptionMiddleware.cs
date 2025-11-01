@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Infrastructure.Restful.Middleware;
+namespace Infrastructure.Restful.Middleware.Exceptions;
 
 /// <summary>
 /// Middleware that handles <see cref="ValidationException"/> and returns standardized RFC 7807 ProblemDetails responses.

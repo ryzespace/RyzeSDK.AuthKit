@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Restful.Middleware;
 using Infrastructure.Restful.Middleware.Exceptions;
+using ExceptionHandlingMiddleware = Infrastructure.Restful.Middleware.Exceptions.ExceptionHandlingMiddleware;
 
 namespace Host.Configuration;
 
