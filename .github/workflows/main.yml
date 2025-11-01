@@ -62,7 +62,7 @@ jobs:
         with:
           name: auth-service-${{ matrix.runtime }}
           path: ./publish/${{ matrix.runtime }}     
-          
+
   attest:
     name: 🛡️ Attest Build Provenance
     needs: build

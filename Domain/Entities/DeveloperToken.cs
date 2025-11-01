@@ -21,6 +21,7 @@ public record DeveloperToken
 
     public TokenName Name { get; init; } = new("default");
     public IReadOnlyList<TokenScope> Scopes { get; init; } = [];
+    public string? Key { get; set; }
     public TokenLifetime Lifetime { get; init; } = new(DateTimeOffset.UtcNow);
     
     public static DeveloperToken Create(
