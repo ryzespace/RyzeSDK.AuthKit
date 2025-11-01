@@ -22,6 +22,7 @@ public static class AppMiddlewareConfiguration
     {
         app.UseRouting();
         app.UseMiddleware<ValidationExceptionMiddleware>();
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseAuthentication();
         app.UseMiddleware<DeveloperTokenMiddleware>();
         app.UseAuthorization();

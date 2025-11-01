@@ -1,27 +1,30 @@
-﻿using FluentValidation;
+﻿using System.Net;
+using System.Text.Json;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Infrastructure.Restful.Middleware;
 
 /// <summary>
-/// Middleware that catches <see cref="ValidationException"/> thrown by FluentValidation
-/// and converts them into a standardized HTTP 400 response with JSON error details.
+/// Middleware that handles <see cref="ValidationException"/> and returns standardized RFC 7807 ProblemDetails responses.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item><description>Intercepts exceptions of type <see cref="ValidationException"/>.</description></item>
-/// <item><description>Returns HTTP 400 Bad Request with JSON payload containing property names and error messages.</description></item>
-/// <item><description>Should be registered early in the middleware pipeline to catch validation errors from controllers or other middlewares.</description></item>
+/// <item>Returns <b>400 Bad Request</b> with validation errors in structured JSON format.</item>
+/// <item>Uses <see cref="ErrorMetadataOptions"/> for consistent error documentation links.</item>
+/// <item>Ensures consistent error response structure across the entire REST layer.</item>
 /// </list>
 /// </remarks>
-/// <param name="next">The next middleware delegate in the pipeline.</param>
-public class ValidationExceptionMiddleware(RequestDelegate next)
+public sealed class ValidationExceptionMiddleware(
+    RequestDelegate next,
+    ILogger<ValidationExceptionMiddleware> logger,
+    IOptions<ErrorMetadataOptions> options)
 {
-    /// <summary>
-    /// Invokes the middleware, catching <see cref="ValidationException"/> and returning structured JSON errors.
-    /// </summary>
-    /// <param name="context">The current <see cref="HttpContext"/>.</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+    private readonly string _baseUrl = options.Value.DocsBaseUrl.TrimEnd('/');
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -30,11 +33,43 @@ public class ValidationExceptionMiddleware(RequestDelegate next)
         }
         catch (ValidationException ex)
         {
-            context.Response.StatusCode = 400;
-            context.Response.ContentType = "application/json";
-            var errors = ex.Errors
-                .Select(e => new { e.PropertyName, e.ErrorMessage });
-            await context.Response.WriteAsJsonAsync(new { message = "Validation failed", errors });
+            await HandleValidationAsync(context, ex);
         }
+    }
+
+    private async Task HandleValidationAsync(HttpContext context, ValidationException ex)
+    {
+        var code = "validation_failed";
+        var status = HttpStatusCode.BadRequest;
+
+        var errors = ex.Errors
+            .GroupBy(e => e.PropertyName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(e => e.ErrorMessage).ToArray()
+            );
+
+        var problem = new ProblemDetails
+        {
+            Type = $"{_baseUrl}/{code}",
+            Title = "Validation failed",
+            Detail = "One or more validation errors occurred.",
+            Status = (int)status,
+            Instance = context.TraceIdentifier,
+            Extensions =
+            {
+                ["error_code"] = code,
+                ["trace_id"] = context.TraceIdentifier,
+                ["errors"] = errors
+            }
+        };
+
+        logger.LogWarning("Validation failed on {Path}: {@Errors}", context.Request.Path, errors);
+
+        context.Response.StatusCode = problem.Status.Value;
+        context.Response.ContentType = "application/problem+json";
+
+        var json = JsonSerializer.Serialize(problem, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        await context.Response.WriteAsync(json);
     }
 }

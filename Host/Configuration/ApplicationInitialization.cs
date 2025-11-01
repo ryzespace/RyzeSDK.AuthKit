@@ -4,6 +4,7 @@ using Application.UseCase.Commands.Requests;
 using Domain.ValueObject;
 using FluentValidation;
 using Infrastructure.Restful.Controllers;
+using Infrastructure.Restful.Middleware;
 
 namespace Host.Configuration;
 
@@ -40,11 +41,32 @@ public static class ApplicationInitialization
         services.AddHttpContextAccessor();
 
         AddServices(services);
-        services.Configure<AuthKitOptions>(
-            configuration.GetSection("AuthKit"));
+        services.ConfigureAppOptions(configuration);
+        
         return services;
     }
+    
+    #region Private Options FluentValidation
 
+    private static void ConfigureAppOptions(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AuthKitOptions>(configuration.GetSection("AuthKit"));
+        services.Configure<ErrorMetadataOptions>(configuration.GetSection("ErrorMetadata"));
+    }    
+    
+    private static IServiceCollection AddFluentValidation(this IServiceCollection services)
+    {
+        var assemblies = GetRelevantAssemblies();
+        services.Scan(scan => scan
+            .FromAssemblies(assemblies)
+            .AddClasses(classes => classes.AssignableTo(typeof(AbstractValidator<>)))
+            .AsImplementedInterfaces()
+            .WithScopedLifetime());
+
+        return services;
+    }
+    #endregion
+    
     #region Private Helpers
 
     private static void AddServices(this IServiceCollection services)
@@ -64,18 +86,6 @@ public static class ApplicationInitialization
             typeof(DeveloperTokensController).Assembly,            // Infrastructure
             typeof(CreateDeveloperTokenCommand).Assembly        // Application
         }.Distinct().ToArray();
-
-    private static IServiceCollection AddFluentValidation(this IServiceCollection services)
-    {
-        var assemblies = GetRelevantAssemblies();
-        services.Scan(scan => scan
-            .FromAssemblies(assemblies)
-            .AddClasses(classes => classes.AssignableTo(typeof(AbstractValidator<>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-
-        return services;
-    }
 
     private static void AddCustomDependencyInjection(this IServiceCollection services)
     {
