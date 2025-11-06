@@ -52,6 +52,4 @@ public interface IDeveloperTokenManager
      /// <param name="ct">Optional <see cref="CancellationToken"/>.</param>
      /// <returns>The <see cref="DeveloperToken"/> if found; otherwise, <c>null</c>.</returns>
      Task<DeveloperToken?> GetByIdAsync(Guid id, CancellationToken ct = default);
-     
-     
 }

@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using Application.Options;
+using Application.Services.Key;
+using Application.UseCase.Commands.Handlers;
 using Application.UseCase.Commands.Requests;
 using Domain.ValueObject;
 using FluentValidation;
@@ -103,8 +105,12 @@ public static class ApplicationInitialization
         services.Scan(scan => scan
             .FromAssemblies(assemblies)
             .AddClasses(classes => classes
-                .Where(type => namespacesToScan.Any(ns =>
-                    type.Namespace?.StartsWith(ns) ?? false)))
+                .Where(type =>
+                    namespacesToScan.Any(ns => type.Namespace?.StartsWith(ns) ?? false)
+                    && type != typeof(AesKeyEncryptor)
+                    && type != typeof(RsaKeyGenerator)
+                    && type != typeof(FileKeyStorePersistence)
+                    && type != typeof(JwtKeyStore)))
             .AsImplementedInterfaces()
             .WithScopedLifetime());
     }
