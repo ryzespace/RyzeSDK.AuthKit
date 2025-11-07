@@ -20,10 +20,11 @@ public class RsaKeyGenerator : IKeyGenerator
     /// <inheritdoc />
     public (RsaSecurityKey Key, KeyMetadata Meta) Generate(int rsaBits = 4096)
     {
-        using var rsa = RSA.Create(rsaBits);
+        var rsa = RSA.Create(rsaBits);
         var kid = Guid.NewGuid().ToString("N");
 
-        var key = new RsaSecurityKey(rsa.ExportParameters(includePrivateParameters: true))
+        var key = new RsaSecurityKey(rsa)
+      //  var key = new RsaSecurityKey(rsa.ExportParameters(includePrivateParameters: true))
         {
             KeyId = kid
         };
