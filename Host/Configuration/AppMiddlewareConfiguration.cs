@@ -25,16 +25,15 @@ public static class AppMiddlewareConfiguration
         app.UseRouting();
         app.UseMiddleware<ValidationExceptionMiddleware>();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseAuthentication();
         app.UseMiddleware<DeveloperTokenMiddleware>();
+        app.UseAuthentication();
         app.UseAuthorization();
 
+
+        if (!app.Environment.IsDevelopment()) return app;
         
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+        app.UseSwagger();
+        app.UseSwaggerUI();
         return app;
     }
 }

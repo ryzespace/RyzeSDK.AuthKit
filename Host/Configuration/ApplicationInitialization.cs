@@ -1,12 +1,10 @@
 ﻿using System.Reflection;
 using Application.Options;
 using Application.Services.Key;
-using Application.UseCase.Commands.Handlers;
 using Application.UseCase.Commands.Requests;
 using Domain.ValueObject;
 using FluentValidation;
 using Infrastructure.Restful.Controllers;
-using Infrastructure.Restful.Middleware;
 
 namespace Host.Configuration;
 

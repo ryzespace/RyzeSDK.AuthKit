@@ -9,7 +9,7 @@ namespace Host.Configuration;
 
 public static class KeycloakConfiguration
 {
-    public static IServiceCollection AddKeycloakServices(this IServiceCollection services)
+    public static void AddKeycloakServices(this IServiceCollection services)
     {
         var baseUrl = Environment.GetEnvironmentVariable("KEYCLOAK_URL") ?? "http://keycloak:8080";
         var realm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM") ?? "authz";
@@ -71,7 +71,5 @@ public static class KeycloakConfiguration
                         HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
                 };
             });
-
-        return services;
     }
 }

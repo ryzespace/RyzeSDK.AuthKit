@@ -1,49 +1,78 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
+using System.Security.Cryptography;
+using Application.DTO;
 using Application.Interfaces;
+using Application.Interfaces.JWTKey;
 using Domain.Entities;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services;
 
 /// <summary>
-/// Service responsible for generating JWT tokens for <see cref="DeveloperToken"/> entities.
+/// Service responsible for generating and managing <see cref="DeveloperToken"/> JWTs.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item>Generates signed JWT tokens including developer ID, token name, and scopes as claims.</item>
-/// <item>Uses HMAC SHA256 algorithm and a symmetric key from the <c>JWT_KEY</c> environment variable.</item>
-/// <item>Throws <see cref="InvalidOperationException"/> if the <c>JWT_KEY</c> environment variable is missing.</item>
+/// <item>Generates JWTs for developer tokens using the active key from <see cref="IJwtKeyStore"/>.</item>
+/// <item>Creates key bindings between tokens and RSA signing keys via <see cref="IKeyBindingService"/>.</item>
+/// <item>Supports short-lived ("temp") and permanent ("live") token formats.</item>
+/// <item>Encapsulates JWT claim construction and secure random short key generation.</item>
 /// </list>
 /// </remarks>
-public class DeveloperTokenService : IDeveloperTokenService
+public class DeveloperTokenService(IJwtKeyStore jwtKeyStore, IKeyBindingService keyBindingService)
+    : IDeveloperTokenService
 {
-    private readonly string _jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
-                                      ?? throw new InvalidOperationException("Missing JWT_KEY environment variable.");
-
     /// <inheritdoc />
-    public Task<string> GenerateToken(DeveloperToken token)
+    public async Task<DeveloperTokenPairDto> GenerateToken(DeveloperToken token)
     {
+        var creds = GetSigningCredentials();
+        var claims = BuildClaims(token);
+        var jwt = CreateJwtToken(claims, token.Lifetime.ExpiresAt, creds);
+
+        await CreateKeyBinding(token.Id, creds.Key.KeyId!);
+
         var handler = new JwtSecurityTokenHandler();
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
+        return new DeveloperTokenPairDto(GenerateShortKey(token), handler.WriteToken(jwt));
+    }
 
-        var claims = new List<Claim>
-        {
-            new("sub", token.DeveloperId.ToString()),
-            new("name", token.Name.ToString())
-        };
+    private Microsoft.IdentityModel.Tokens.SigningCredentials GetSigningCredentials()
+    {
+        var creds = jwtKeyStore.GetActiveSigningCredentials();
+        return string.IsNullOrEmpty(creds.Key.KeyId)
+            ? throw new InvalidOperationException("SigningCredentials must have a KeyId set.") : creds;
+    }
 
-        claims.AddRange(
-            token.Scopes.Select(scope => new Claim("scope", scope.Value))
-        );
+    private async Task CreateKeyBinding(Guid tokenId, string signingKeyId)
+    {
+        var jwk = jwtKeyStore.GetPublicJwks()
+            .FirstOrDefault(k => k.Kid == signingKeyId)
+            ?? throw new InvalidOperationException($"No JWK for kid '{signingKeyId}'.");
 
-        var jwt = new JwtSecurityToken(
-            expires: token.Lifetime.ExpiresAt?.UtcDateTime,
-            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256),
-            claims: claims
-        );
+        await keyBindingService.CreateBindingAsync(tokenId, signingKeyId, jwk.N);
+    }
 
-        return Task.FromResult(handler.WriteToken(jwt));
+    private static JwtSecurityToken CreateJwtToken(IEnumerable<Claim> claims, DateTimeOffset? expiresAt,
+        Microsoft.IdentityModel.Tokens.SigningCredentials creds)
+    {
+        var expires = expiresAt?.UtcDateTime ?? DateTime.UtcNow.AddYears(100);
+        return new JwtSecurityToken(claims: claims, expires: expires, signingCredentials: creds);
+    }
+
+    private static IEnumerable<Claim> BuildClaims(DeveloperToken token)
+    {
+        yield return new Claim(JwtRegisteredClaimNames.Sub, token.DeveloperId.ToString());
+        yield return new Claim(JwtRegisteredClaimNames.Jti, token.Id.ToString());
+        yield return new Claim("name", token.Name);
+        yield return new Claim("type", token.Lifetime.ExpiresAt.HasValue ? "temp" : "live");
+
+        foreach (var scope in token.Scopes)
+            yield return new Claim("scope", scope.Value);
+    }
+
+    private static string GenerateShortKey(DeveloperToken token)
+    {
+        var prefix = token.Lifetime.ExpiresAt.HasValue ? "rk_temp_" : "rk_live_";
+        var randomHex = Convert.ToHexString(RandomNumberGenerator.GetBytes(16)).ToLowerInvariant();
+        return $"{prefix}{randomHex}";
     }
 }

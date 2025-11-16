@@ -1,28 +1,27 @@
 ﻿namespace Application.Interfaces.JWTKey;
 
 /// <summary>
-/// Defines a contract for persisting encrypted keystore data to and from storage.
+/// Provides abstraction for persisting and loading encrypted keystore data.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item>Handles reading and writing of encrypted key material.</item>
-/// <item>Used by <c>JwtKeyStore</c> or similar services to persist cryptographic state.</item>
-/// <item>Abstracts underlying storage (e.g., file system, database, or cloud vault).</item>
+/// <item>Supports asynchronous I/O operations for high-performance scenarios.</item>
+/// <item>The storage medium can be a file system, database, or any other persistent store.</item>
+/// <item>The data is expected to be already encrypted by <see cref="IKeyEncryptor"/> before saving.</item>
 /// </list>
 /// </remarks>
 public interface IKeyStorePersistence
 {
     /// <summary>
-    /// Loads the encrypted keystore data from persistent storage.
+    /// Asynchronously loads the persisted keystore bytes.
     /// </summary>
-    /// <returns>
-    /// A byte array containing the encrypted keystore data, or <c>null</c> if no data is available.
-    /// </returns>
-    byte[]? Load();
+    /// <returns>A <see cref="Memory{Byte}"/> containing the persisted encrypted keystore data. 
+    /// Returns empty memory if no data is found.</returns>
+    Task<Memory<byte>> LoadAsync();
 
     /// <summary>
-    /// Saves the provided encrypted keystore data to persistent storage.
+    /// Asynchronously saves the provided encrypted keystore bytes to persistent storage.
     /// </summary>
-    /// <param name="encryptedData">The encrypted keystore data to store.</param>
-    void Save(byte[] encryptedData);
+    /// <param name="data">Encrypted keystore data to persist.</param>
+    Task SaveAsync(ReadOnlyMemory<byte> data);
 }

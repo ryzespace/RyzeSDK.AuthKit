@@ -4,3 +4,4 @@ obj/
 .idea/
 .env
 /net-commander
+qodana.yaml

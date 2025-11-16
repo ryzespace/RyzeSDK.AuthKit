@@ -6,65 +6,53 @@ using Microsoft.Extensions.Logging;
 namespace Infrastructure.Restful.Middleware;
 
 /// <summary>
-/// Middleware that extracts and validates a developer token from the X-Developer-Token header.
+/// Middleware responsible for validating "DeveloperToken" headers and enriching <see cref="HttpContext.User"/>.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
-/// <item>Reads the <c>X-Developer-Token</c> header from the incoming request.</item>
-/// <item>Supports optional Bearer prefix and quoted strings in the token header.</item>
+/// <item>Checks for the presence of the "X-Developer-Token" header.</item>
 /// <item>Validates the token using <see cref="IDeveloperTokenValidator"/>.</item>
-/// <item>If valid, adds a new <see cref="ClaimsIdentity"/> with scope claims to <see cref="HttpContext.User"/>.</item>
-/// <item>Logs validation status, including developer ID and authentication state.</item>
-/// <item>Passes the request to the next middleware in the pipeline regardless of validation outcome.</item>
+/// <item>Adds a <see cref="ClaimsIdentity"/> to <see cref="HttpContext.User"/> containing the developer ID, name, and scopes.</item>
+/// <item>Logs validation success or failure for observability.</item>
+/// <item>Does not short-circuit the request; the pipeline continues regardless of token validity.</item>
 /// </list>
 /// </remarks>
 public class DeveloperTokenMiddleware(RequestDelegate next, ILogger<DeveloperTokenMiddleware> logger)
 {
     /// <summary>
-    /// Invokes the middleware to validate the developer token in the request.
+    /// Invokes the middleware logic to validate developer tokens and populate <see cref="HttpContext.User"/>.
     /// </summary>
     /// <param name="context">The current HTTP context.</param>
-    /// <param name="validator">The developer token validator service.</param>
-    /// <returns>A task representing the asynchronous middleware execution.</returns>
+    /// <param name="validator">Service used to validate developer tokens.</param>
     public async Task InvokeAsync(HttpContext context, IDeveloperTokenValidator validator)
     {
-        if (context.Request.Headers.TryGetValue("X-Developer-Token", out var tokenValue))
+        if (context.Request.Headers.TryGetValue("X-Developer-Token", out var header))
         {
-            var rawToken = tokenValue.ToString().Trim();
-
-            if (rawToken.StartsWith("\"") && rawToken.EndsWith("\""))
-                rawToken = rawToken.Trim('"');
-
-            if (rawToken.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                rawToken = rawToken.Substring("Bearer ".Length).Trim();
+            var token = header.ToString().Trim().Trim('"');
+            if (token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                token = token["Bearer ".Length..].Trim();
 
             try
             {
-                var principal = await validator.ValidateAsync(rawToken);
-
+                var principal = await validator.ValidateAsync(token);
                 if (principal != null)
                 {
-                    var devIdentity = new ClaimsIdentity(
+                    var identity = new ClaimsIdentity(
                         principal.Scopes.Select(s => new Claim("scope", s)),
                         "DeveloperToken"
                     );
-
-                    devIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, principal.DeveloperId.ToString()));
-                    devIdentity.AddClaim(new Claim(ClaimTypes.Name, principal.Name));
+                    identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, principal.DeveloperId.ToString()));
+                    identity.AddClaim(new Claim(ClaimTypes.Name, principal.Name));
                     
-                    var currentUser = context.User;
-                    context.User = new ClaimsPrincipal(currentUser.Identities.Concat([devIdentity]));
+                    context.User.AddIdentity(identity);
 
                     logger.LogDebug("[AuthKit] Developer token validated for {DeveloperId}", principal.DeveloperId);
-                    logger.LogDebug("[AuthKit] IsAuthenticated? {IsAuthenticated}", context.User.Identity?.IsAuthenticated);
-                    logger.LogDebug("[AuthKit] IsInRole(User)? {IsInRole}", context.User.IsInRole("User"));
                 }
-
 
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "[AuthKit] Failed to validate developer token.");
+                logger.LogWarning(ex, "[AuthKit] Failed to validate developer token.");
             }
         }
 

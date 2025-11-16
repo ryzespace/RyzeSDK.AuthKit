@@ -17,11 +17,11 @@ namespace Application.UseCase.Commands.Handlers;
 /// <item>Returns a <see cref="DeveloperTokenCreated"/> DTO with created token details.</item>
 /// </list>
 /// </remarks>
-public class CreateDeveloperTokenHandler(IDeveloperTokenManager manager,
+public class CreateDeveloperTokenHandler(
+    IDeveloperTokenManager manager,
     IDeveloperTokenRepository repository,
     IOptions<AuthKitOptions> options)
 {
-    
     public async Task<DeveloperTokenCreated> Handle(CreateDeveloperTokenCommand cmd)
     {
         var maxTokens = options.Value.MaxDeveloperTokens;

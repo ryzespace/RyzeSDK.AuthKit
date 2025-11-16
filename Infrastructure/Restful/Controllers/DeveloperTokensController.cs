@@ -65,7 +65,8 @@ public class DeveloperTokensController(IMessageBus messageBus, ILogger<Developer
         
         return Ok(new 
         {
-            token = result.Jwt,
+            jwt = result.Jwt,
+            key = result.ShortKey,
             id = result.Token.Id,
             developerId = result.Token.DeveloperId,
             scopes = result.Token.Scopes,

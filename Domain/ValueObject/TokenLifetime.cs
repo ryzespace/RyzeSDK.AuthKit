@@ -24,7 +24,11 @@ public sealed record TokenLifetime
         CreatedAt = createdAt;
         ExpiresAt = expiresAt;
     }
-
+    
+    public int? Days => ExpiresAt.HasValue
+        ? (int?)(ExpiresAt.Value - CreatedAt).TotalDays
+        : null;
+    
     public bool IsExpired => ExpiresAt.HasValue && DateTimeOffset.UtcNow > ExpiresAt.Value;
 
     public TimeSpan? Remaining => ExpiresAt.HasValue

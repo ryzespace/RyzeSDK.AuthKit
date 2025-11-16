@@ -25,6 +25,7 @@ public class DeveloperTokenManager(
     public async Task<DeveloperTokenCreated> CreateAsync(Guid developerId, string name, IEnumerable<string> scopes, TimeSpan? lifetime = null,
         CancellationToken ct = default)
     {
+        Console.WriteLine("Debug DeveloperTokenManager");
         var token = DeveloperToken.Create(
             developerId,
             name,
@@ -32,13 +33,14 @@ public class DeveloperTokenManager(
             lifetime
         );
 
-        await repository.SaveAsync(token, ct);
-        var jwt = await tokenService.GenerateToken(token);
-
+        //await repository.SaveAsync(token, ct);
+        var tokenPair = await tokenService.GenerateToken(token);
+        
         return new DeveloperTokenCreated
         {
-            Token = token,
-            Jwt = jwt
+            Token = token, 
+            ShortKey = tokenPair.ShortKey,
+            Jwt = tokenPair.Jwt
         };
     }
     
@@ -53,4 +55,5 @@ public class DeveloperTokenManager(
     /// <inheritdoc />
     public async Task<DeveloperToken?> GetByIdAsync(Guid tokenId, CancellationToken ct = default) =>
         await repository.GetByIdAsync(tokenId, ct);
+    
 }

@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Application.DTO;
+using Domain.Entities;
 
 namespace Application.Interfaces;
 
@@ -18,5 +19,5 @@ public interface IDeveloperTokenService
     /// </summary>
     /// <param name="token">The developer token entity for which to generate a JWT.</param>
     /// <returns>A <see cref="Task{TResult}"/> containing the signed JWT string.</returns>
-    Task<string> GenerateToken(DeveloperToken token);
+    Task<DeveloperTokenPairDto> GenerateToken(DeveloperToken token);
 }

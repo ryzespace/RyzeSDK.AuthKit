@@ -2,7 +2,7 @@
 
 namespace Application.UseCase.Commands.Handlers;
 
-public class ClientAuthTokenCommandHandle
+public class ClientAuthTokenCommandHandler
 {
     public async Task Handle(ClientAuthTokenCommand cmd)
     {
