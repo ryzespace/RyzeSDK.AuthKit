@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Domain.ValueObject;
+namespace Domain.Features.DeveloperTokens.ValueObject;
 
 /// <summary>
 /// Represents a scope assigned to a token.

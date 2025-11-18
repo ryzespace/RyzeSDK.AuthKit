@@ -1,6 +1,4 @@
-﻿using Domain.Entities;
-
-namespace Domain.Repositories;
+﻿namespace Domain.Features.TokenKeyBindings;
 
 /// <summary>
 /// Repository abstraction for managing <see cref="TokenKeyBinding"/> entities.

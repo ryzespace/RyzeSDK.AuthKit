@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Domain.ValueObject;
+﻿namespace Domain.Features.DeveloperTokens.ValueObject;
 
 /// <summary>
 /// Represents the name of a token.

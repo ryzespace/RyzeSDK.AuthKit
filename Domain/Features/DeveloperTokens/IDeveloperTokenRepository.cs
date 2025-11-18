@@ -1,6 +1,4 @@
-﻿using Domain.Entities;
-
-namespace Domain.Repositories;
+﻿namespace Domain.Features.DeveloperTokens;
 
 /// <summary>
 /// Repository interface for managing <see cref="DeveloperToken"/> entities.

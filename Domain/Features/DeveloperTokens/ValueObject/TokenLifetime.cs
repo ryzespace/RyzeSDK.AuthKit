@@ -1,4 +1,4 @@
-﻿namespace Domain.ValueObject;
+﻿namespace Domain.Features.DeveloperTokens.ValueObject;
 
 /// <summary>
 /// Represents the lifetime of a token, including its creation and optional expiration dates.

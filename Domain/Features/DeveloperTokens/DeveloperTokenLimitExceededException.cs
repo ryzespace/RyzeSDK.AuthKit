@@ -1,4 +1,4 @@
-﻿namespace Domain.Exceptions;
+﻿namespace Domain.Features.DeveloperTokens;
 
 /// <summary>
 /// Exception thrown when a developer exceeds the allowed number of tokens.

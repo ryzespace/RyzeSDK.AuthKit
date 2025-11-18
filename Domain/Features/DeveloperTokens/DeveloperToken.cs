@@ -1,6 +1,8 @@
-﻿using Domain.ValueObject;
+﻿using Domain.Features.DeveloperTokens.ValueObject;
+using Domain.Features.RateLimit;
+using Domain.Features.TokenKeyBindings;
 
-namespace Domain.Entities;
+namespace Domain.Features.DeveloperTokens;
 
 /// <summary>
 /// Represents a developer-issued token with a name, scopes, and lifetime.
@@ -27,26 +29,34 @@ public record DeveloperToken
     /// </summary>
     public IReadOnlyList<TokenKeyBinding> KeyBindings { get; init; } = [];
     
+    /// <summary>
+    /// Optional rate limiting rules applied to this token.
+    /// </summary>
+    public DeveloperTokenRateLimits? RateLimits { get; init; }
+    
     public TokenLifetime Lifetime { get; init; } = new(DateTimeOffset.UtcNow);
     
     public static DeveloperToken Create(
         Guid developerId,
         TokenName name,
         IEnumerable<TokenScope> scopes,
-        TimeSpan? lifetime = null)
+        TimeSpan? lifetime = null,
+        DeveloperTokenRateLimits? rateLimits = null)
     {
-        
+        var now = DateTimeOffset.UtcNow;
+
         var tokenLifetime = new TokenLifetime(
-            DateTimeOffset.UtcNow,
-            lifetime.HasValue ? DateTimeOffset.UtcNow.Add(lifetime.Value) : null
+            now,
+            lifetime.HasValue ? now.Add(lifetime.Value) : null
         );
 
         return new DeveloperToken
         {
-            DeveloperId = developerId,
-            Name = name,
-            Scopes = scopes.ToList().AsReadOnly(),
-            Lifetime = tokenLifetime
+            DeveloperId  = developerId,
+            Name         = name,
+            Scopes       = scopes.ToList().AsReadOnly(),
+            Lifetime     = tokenLifetime,
+            RateLimits   = rateLimits
         };
     }
     
@@ -82,4 +92,16 @@ public record DeveloperToken
             .AsReadOnly();
         return this with { KeyBindings = newBindings };
     }
+    
+    /// <summary>
+    /// Updates rate limits immutably.
+    /// </summary>
+    public DeveloperToken UpdateRateLimits(DeveloperTokenRateLimits rateLimits)
+        => this with { RateLimits = rateLimits };
+
+    /// <summary>
+    /// Removes rate limits.
+    /// </summary>
+    public DeveloperToken ClearRateLimits() =>
+        this with { RateLimits = null };
 }

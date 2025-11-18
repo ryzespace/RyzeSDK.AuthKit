@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities;
+﻿using Domain.Features.DeveloperTokens;
+
+namespace Domain.Features.TokenKeyBindings;
 
 /// <summary>
 /// Represents a binding between a <see cref="DeveloperToken"/> and the RSA signing key used to sign its JWT.

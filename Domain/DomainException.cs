@@ -1,4 +1,4 @@
-﻿namespace Domain.Exceptions;
+﻿namespace Domain;
 
 /// <summary>
 /// Base class for all domain-specific exceptions.
