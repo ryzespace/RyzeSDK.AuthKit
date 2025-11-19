@@ -1,5 +1,4 @@
 ﻿using Domain.Features.DeveloperTokens.ValueObject;
-using Domain.Features.RateLimit;
 using Domain.Features.TokenKeyBindings;
 
 namespace Domain.Features.DeveloperTokens;
@@ -23,25 +22,14 @@ public record DeveloperToken
 
     public TokenName Name { get; init; } = new("default");
     public IReadOnlyList<TokenScope> Scopes { get; init; } = [];
-
-    /// <summary>
-    /// Optional list of associated signing key bindings.
-    /// </summary>
     public IReadOnlyList<TokenKeyBinding> KeyBindings { get; init; } = [];
-    
-    /// <summary>
-    /// Optional rate limiting rules applied to this token.
-    /// </summary>
-    public DeveloperTokenRateLimits? RateLimits { get; init; }
-    
     public TokenLifetime Lifetime { get; init; } = new(DateTimeOffset.UtcNow);
     
     public static DeveloperToken Create(
         Guid developerId,
         TokenName name,
         IEnumerable<TokenScope> scopes,
-        TimeSpan? lifetime = null,
-        DeveloperTokenRateLimits? rateLimits = null)
+        TimeSpan? lifetime = null)
     {
         var now = DateTimeOffset.UtcNow;
 
@@ -55,8 +43,7 @@ public record DeveloperToken
             DeveloperId  = developerId,
             Name         = name,
             Scopes       = scopes.ToList().AsReadOnly(),
-            Lifetime     = tokenLifetime,
-            RateLimits   = rateLimits
+            Lifetime     = tokenLifetime
         };
     }
     
@@ -92,16 +79,4 @@ public record DeveloperToken
             .AsReadOnly();
         return this with { KeyBindings = newBindings };
     }
-    
-    /// <summary>
-    /// Updates rate limits immutably.
-    /// </summary>
-    public DeveloperToken UpdateRateLimits(DeveloperTokenRateLimits rateLimits)
-        => this with { RateLimits = rateLimits };
-
-    /// <summary>
-    /// Removes rate limits.
-    /// </summary>
-    public DeveloperToken ClearRateLimits() =>
-        this with { RateLimits = null };
 }

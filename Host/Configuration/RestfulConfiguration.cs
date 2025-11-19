@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Restful.Controllers;
+using Infrastructure.Restful.DeveloperTokens;
 using Microsoft.OpenApi.Models;
 
 namespace Host.Configuration;

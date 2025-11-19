@@ -1,4 +1,4 @@
-﻿using Application.DTO;
+﻿using Application.Features.DeveloperTokens.DTO;
 using Infrastructure.Restful.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

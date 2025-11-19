@@ -1,9 +1,10 @@
-﻿using Application.Interfaces;
-using Application.Interfaces.JWTKey;
-using Application.Services;
-using Application.Services.Key;
-using Infrastructure;
+﻿using Application.Features.DeveloperTokens.Interfaces;
+using Application.Features.DeveloperTokens.Services;
+using Application.Features.KeyManagement.Interfaces;
+using Application.Features.KeyManagement.Services;
+using Infrastructure.Persistence.KeyManagement;
 using Infrastructure.Restful.Middleware.Exceptions;
+using Infrastructure.Security;
 using Infrastructure.Security.DeveloperScope;
 using Microsoft.AspNetCore.Authorization;
 

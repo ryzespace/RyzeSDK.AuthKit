@@ -1,9 +1,8 @@
-using System.Security.Cryptography;
-using Application.Interfaces;
-using Application.Services;
-using Domain.Repositories;
+using Application.Features.TokenKeyBindings.Interfaces;
+using Application.Features.TokenKeyBindings.Services;
+using Domain.Features.TokenKeyBindings;
 using Host.Configuration;
-using Infrastructure.Repositories;
+using Infrastructure.Persistence.KeyBinding;
 
 var builder = WebApplication.CreateBuilder(args);
 

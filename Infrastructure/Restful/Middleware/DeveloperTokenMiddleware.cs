@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using Application.Interfaces;
+using Application.Features.DeveloperTokens.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 

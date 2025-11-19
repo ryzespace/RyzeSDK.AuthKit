@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Text.Json;
 using Application.Options;
-using Domain.Exceptions;
+using Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

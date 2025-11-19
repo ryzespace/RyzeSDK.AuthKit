@@ -1,4 +1,4 @@
-﻿using Application.UseCase.Commands.Handlers;
+﻿using Application.Features.DeveloperTokens.UseCase.Commands.Handlers;
 using Wolverine;
 
 namespace Host.Configuration.Factory;

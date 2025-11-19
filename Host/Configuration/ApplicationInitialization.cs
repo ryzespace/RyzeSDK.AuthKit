@@ -1,10 +1,11 @@
 ﻿using System.Reflection;
+using Application.Features.DeveloperTokens.UseCase.Commands.Requests;
+using Application.Features.KeyManagement.Services;
 using Application.Options;
-using Application.Services.Key;
-using Application.UseCase.Commands.Requests;
-using Domain.ValueObject;
+using Domain.Features.DeveloperTokens.ValueObject;
 using FluentValidation;
-using Infrastructure.Restful.Controllers;
+using Infrastructure.Persistence.KeyManagement;
+using Infrastructure.Restful.DeveloperTokens;
 
 namespace Host.Configuration;
 
@@ -48,23 +49,27 @@ public static class ApplicationInitialization
     
     #region Private Options FluentValidation
 
-    private static void ConfigureAppOptions(this IServiceCollection services, IConfiguration configuration)
+    extension(IServiceCollection services)
     {
-        services.Configure<AuthKitOptions>(configuration.GetSection("AuthKit"));
-        services.Configure<ErrorMetadataOptions>(configuration.GetSection("ErrorMetadata"));
-    }    
-    
-    private static IServiceCollection AddFluentValidation(this IServiceCollection services)
-    {
-        var assemblies = GetRelevantAssemblies();
-        services.Scan(scan => scan
-            .FromAssemblies(assemblies)
-            .AddClasses(classes => classes.AssignableTo(typeof(AbstractValidator<>)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
+        private void ConfigureAppOptions(IConfiguration configuration)
+        {
+            services.Configure<AuthKitOptions>(configuration.GetSection("AuthKit"));
+            services.Configure<ErrorMetadataOptions>(configuration.GetSection("ErrorMetadata"));
+        }
 
-        return services;
+        private IServiceCollection AddFluentValidation()
+        {
+            var assemblies = GetRelevantAssemblies();
+            services.Scan(scan => scan
+                .FromAssemblies(assemblies)
+                .AddClasses(classes => classes.AssignableTo(typeof(AbstractValidator<>)))
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
+
+            return services;
+        }
     }
+
     #endregion
     
     #region Private Helpers

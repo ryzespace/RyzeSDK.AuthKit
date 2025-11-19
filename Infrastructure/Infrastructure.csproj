@@ -23,6 +23,6 @@
     <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Security\DeveloperToken\" />
+    <Folder Include="Restful\Jwks\DTO\" />
   </ItemGroup>
 </Project>
