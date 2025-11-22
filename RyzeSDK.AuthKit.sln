@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host", "Host\Host.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{76085586-8F87-4012-AFC5-69EDF057E6B6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration", "{9C2A8837-D989-47B9-A965-F5FA21047483}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthKit.Console", "Integration\AuthKit.Console\AuthKit.Console.csproj", "{0A9C0568-7FAA-4E82-9D11-B064833221F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,7 +34,12 @@ Global
 		{76085586-8F87-4012-AFC5-69EDF057E6B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76085586-8F87-4012-AFC5-69EDF057E6B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76085586-8F87-4012-AFC5-69EDF057E6B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A9C0568-7FAA-4E82-9D11-B064833221F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A9C0568-7FAA-4E82-9D11-B064833221F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A9C0568-7FAA-4E82-9D11-B064833221F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A9C0568-7FAA-4E82-9D11-B064833221F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{0A9C0568-7FAA-4E82-9D11-B064833221F5} = {9C2A8837-D989-47B9-A965-F5FA21047483}
 	EndGlobalSection
 EndGlobal
