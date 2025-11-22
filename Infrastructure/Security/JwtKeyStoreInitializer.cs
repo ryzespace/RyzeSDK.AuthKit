@@ -1,24 +1,19 @@
 ﻿using System.Diagnostics;
 using Application.Features.KeyManagement.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Security;
 
-/// <summary>
-/// Hosted service responsible for initializing the <see cref="IJwtKeyStore"/> at application startup.
-/// </summary>
-/// <remarks>
-/// <list type="bullet">
-/// <item>Triggers keystore initialization asynchronously during host startup.</item>
-/// <item>Logs performance metrics including initialization duration, active key ID, and total keys.</item>
-/// <item>Implements <see cref="IHostedService"/> for integration with ASP.NET Core host lifecycle.</item>
-/// </list>
-/// </remarks>
-public class JwtKeyStoreInitializer(IJwtKeyStore store, ILogger<JwtKeyStoreInitializer> logger) : IHostedService
+public class JwtKeyStoreInitializer(IServiceProvider provider, ILogger<JwtKeyStoreInitializer> logger)
+    : IHostedService, IAsyncDisposable
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        await using var scope = provider.CreateAsyncScope();
+        var store = scope.ServiceProvider.GetRequiredService<IJwtKeyStore>();
+
         var sw = Stopwatch.StartNew();
         await store.InitializeAsync();
         sw.Stop();
@@ -32,4 +27,13 @@ public class JwtKeyStoreInitializer(IJwtKeyStore store, ILogger<JwtKeyStoreIniti
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    public async ValueTask DisposeAsync()
+    {
+        await using var scope = provider.CreateAsyncScope();
+        if (scope.ServiceProvider.GetService<IJwtKeyStore>() is IAsyncDisposable asyncStore)
+        {
+            await asyncStore.DisposeAsync();
+        }
+    }
 }

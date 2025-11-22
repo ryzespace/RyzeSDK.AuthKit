@@ -4,7 +4,7 @@ using Application.Features.KeyManagement.Services;
 using Application.Options;
 using Domain.Features.DeveloperTokens.ValueObject;
 using FluentValidation;
-using Infrastructure.Persistence.KeyManagement;
+using Infrastructure.Repositories.KeyManagement;
 using Infrastructure.Restful.DeveloperTokens;
 
 namespace Host.Configuration;
@@ -28,6 +28,7 @@ public static class ApplicationInitialization
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
     /// <param name="configuration">The application <see cref="IConfiguration"/> for settings.</param>
+    /// <param name="logger"></param>
     /// <returns>The configured <see cref="IServiceCollection"/> for method chaining.</returns>
     public static IServiceCollection ConfigureApp(
         this IServiceCollection services,
@@ -38,10 +39,22 @@ public static class ApplicationInitialization
             logging.AddConsole();
             logging.AddConfiguration(configuration.GetSection("Logging"));
         });
+        
         services.AddOptions();
         services.AddHttpContextAccessor();
 
-        AddServices(services);
+        services.AddControllers()
+            .AddApplicationPart(typeof(DeveloperTokensController).Assembly);
+
+        services.AddDiscoveredServices(GetRelevantAssemblies(), opts =>
+        {
+            opts.ExcludedTypes.Add(typeof(AesKeyEncryptor));
+            opts.ExcludedTypes.Add(typeof(RsaKeyGenerator));
+            opts.ExcludedTypes.Add(typeof(JwtKeyStore));
+            opts.ExcludedTypes.Add(typeof(KeyStorePersistence));
+        })
+       .AddFluentValidation();
+        
         services.ConfigureAppOptions(configuration);
         
         return services;
@@ -57,32 +70,19 @@ public static class ApplicationInitialization
             services.Configure<ErrorMetadataOptions>(configuration.GetSection("ErrorMetadata"));
         }
 
-        private IServiceCollection AddFluentValidation()
+        private void AddFluentValidation()
         {
-            var assemblies = GetRelevantAssemblies();
             services.Scan(scan => scan
-                .FromAssemblies(assemblies)
+                .FromAssemblies(GetRelevantAssemblies())
                 .AddClasses(classes => classes.AssignableTo(typeof(AbstractValidator<>)))
                 .AsImplementedInterfaces()
                 .WithScopedLifetime());
-
-            return services;
         }
     }
 
     #endregion
     
     #region Private Helpers
-
-    private static void AddServices(this IServiceCollection services)
-    {
-        services.AddControllers()
-                .AddApplicationPart(typeof(DeveloperTokensController).Assembly);
-
-        services.AddFluentValidation()
-                .AddCustomDependencyInjection();
-    }
-
     private static Assembly[] GetRelevantAssemblies() =>
         new[]
         {
@@ -91,32 +91,5 @@ public static class ApplicationInitialization
             typeof(DeveloperTokensController).Assembly,            // Infrastructure
             typeof(CreateDeveloperTokenCommand).Assembly        // Application
         }.Distinct().ToArray();
-
-    private static void AddCustomDependencyInjection(this IServiceCollection services)
-    {
-        var assemblies = GetRelevantAssemblies();
-        var namespacesToScan = new[]
-        {
-            "Application.Service",
-            "Application.Interfaces",
-            "Application.UseCase.Commands.Handlers",
-            "Domain.Interfaces",
-            "Infrastructure.Keycloak",
-            "Infrastructure.Repositories"
-        };
-
-        services.Scan(scan => scan
-            .FromAssemblies(assemblies)
-            .AddClasses(classes => classes
-                .Where(type =>
-                    namespacesToScan.Any(ns => type.Namespace?.StartsWith(ns) ?? false)
-                    && type != typeof(AesKeyEncryptor)
-                    && type != typeof(RsaKeyGenerator)
-                    && type != typeof(FileKeyStorePersistence)
-                    && type != typeof(JwtKeyStore)))
-            .AsImplementedInterfaces()
-            .WithScopedLifetime());
-    }
-
     #endregion
 }

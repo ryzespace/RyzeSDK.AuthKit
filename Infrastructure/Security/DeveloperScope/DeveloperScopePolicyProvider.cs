@@ -16,15 +16,20 @@ namespace Infrastructure.Security.DeveloperScope;
 /// <item>Supports retrieval of default and fallback policies via the underlying provider.</item>
 /// </list>
 /// </remarks>
-public class DeveloperScopePolicyProvider(IServiceProvider services) : IAuthorizationPolicyProvider
+public class DeveloperScopePolicyProvider : IAuthorizationPolicyProvider
 {
-    private readonly DefaultAuthorizationPolicyProvider _fallbackPolicyProvider = new(
-        services.GetRequiredService<IOptions<AuthorizationOptions>>());
+    private readonly DefaultAuthorizationPolicyProvider _fallbackPolicyProvider;
 
-    /// <inheritdoc />
+    public DeveloperScopePolicyProvider(IOptions<AuthorizationOptions> options)
+    {
+        _fallbackPolicyProvider = new DefaultAuthorizationPolicyProvider(options);
+    }
+
     public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
     {
-        if (!policyName.StartsWith("DeveloperScope:")) return _fallbackPolicyProvider.GetPolicyAsync(policyName);
+        if (!policyName.StartsWith("DeveloperScope:"))
+            return _fallbackPolicyProvider.GetPolicyAsync(policyName);
+
         var scope = policyName.Split(':')[1];
 
         var policy = new AuthorizationPolicyBuilder()
@@ -32,11 +37,11 @@ public class DeveloperScopePolicyProvider(IServiceProvider services) : IAuthoriz
             .Build();
 
         return Task.FromResult<AuthorizationPolicy?>(policy);
-
     }
-    /// <inheritdoc />
-    public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => _fallbackPolicyProvider.GetDefaultPolicyAsync();
-    
-    /// <inheritdoc />
-    public Task<AuthorizationPolicy?> GetFallbackPolicyAsync() => _fallbackPolicyProvider.GetFallbackPolicyAsync();
+
+    public Task<AuthorizationPolicy> GetDefaultPolicyAsync() 
+        => _fallbackPolicyProvider.GetDefaultPolicyAsync();
+
+    public Task<AuthorizationPolicy?> GetFallbackPolicyAsync() 
+        => _fallbackPolicyProvider.GetFallbackPolicyAsync();
 }

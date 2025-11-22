@@ -2,7 +2,7 @@
 using Application.Features.DeveloperTokens.Services;
 using Application.Features.KeyManagement.Interfaces;
 using Application.Features.KeyManagement.Services;
-using Infrastructure.Persistence.KeyManagement;
+using Infrastructure.Repositories.KeyManagement;
 using Infrastructure.Restful.Middleware.Exceptions;
 using Infrastructure.Security;
 using Infrastructure.Security.DeveloperScope;
@@ -34,8 +34,8 @@ public static class AuthKitConfiguration
 
         // RSA / JWT key stores
         services.AddSingleton<IKeyGenerator, RsaKeyGenerator>();
-        services.AddSingleton<IKeyStorePersistence, FileKeyStorePersistence>();
-        services.AddSingleton<IJwtKeyStore, JwtKeyStore>();
+        services.AddScoped<IKeyStorePersistence, KeyStorePersistence>();
+        services.AddScoped<IJwtKeyStore, JwtKeyStore>();
         services.AddHostedService<JwtKeyStoreInitializer>();
     }
 }
