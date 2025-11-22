@@ -46,17 +46,25 @@ public static class ApplicationInitialization
         services.AddControllers()
             .AddApplicationPart(typeof(DeveloperTokensController).Assembly);
 
-        services.AddDiscoveredServices(GetRelevantAssemblies(), opts =>
+        var discoveryLogger = LoggerFactory.Create(builder =>
         {
-            opts.ExcludedTypes.Add(typeof(AesKeyEncryptor));
-            opts.ExcludedTypes.Add(typeof(RsaKeyGenerator));
-            opts.ExcludedTypes.Add(typeof(JwtKeyStore));
-            opts.ExcludedTypes.Add(typeof(KeyStorePersistence));
-        })
-       .AddFluentValidation();
-        
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Debug);
+        }).CreateLogger("ServiceDiscovery");
+
+        services.AddDiscoveredServices(GetRelevantAssemblies(), opts =>
+            {
+                configuration.GetSection("ServiceDiscovery").Bind(opts);
+                
+                opts.ExcludedTypes.Add(typeof(AesKeyEncryptor));
+                opts.ExcludedTypes.Add(typeof(RsaKeyGenerator));
+                opts.ExcludedTypes.Add(typeof(JwtKeyStore));
+                opts.ExcludedTypes.Add(typeof(KeyStorePersistence));
+            }, discoveryLogger)
+            .AddFluentValidation();
+
         services.ConfigureAppOptions(configuration);
-        
+
         return services;
     }
     

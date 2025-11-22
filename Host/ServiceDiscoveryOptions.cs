@@ -15,31 +15,19 @@ public sealed class ServiceDiscoveryOptions
     /// <summary>
     /// Namespaces to include in discovery. Only types within these namespaces will be considered.
     /// </summary>
-    public List<string> AllowedNamespaces { get; set; } =
-    [
-        ".Services",
-        ".Interfaces",
-        ".Repositories",
-        ".Providers",
-        ".Managers",
-        ".Validators",
-        ".Middleware"
-    ];
+    public List<string> AllowedNamespaces { get; set; } = [];
 
     /// <summary>
     /// Namespaces to exclude from discovery, even if listed in <see cref="AllowedNamespaces"/>.
     /// </summary>
-    public List<string> ExcludedNamespaces { get; set; } =
-    [
-        ".DTO",
-        ".Entity",
-        ".ValueObject"
-    ];
+    public List<string> ExcludedNamespaces { get; set; } = [];
 
     /// <summary>
     /// Specific types to ignore during service registration.
     /// </summary>
     public List<Type> ExcludedTypes { get; set; } = [];
+    
+    public List<string> AllowedLayers { get; set; } = [];
 
     /// <summary>
     /// If <c>true</c>, interface types are ignored during discovery.
@@ -51,6 +39,11 @@ public sealed class ServiceDiscoveryOptions
     /// </summary>
     public bool SkipExceptions { get; set; } = true;
 
+    /// <summary>
+    /// If false, ServiceDiscovery will not log debug messages.
+    /// </summary>
+    public bool EnableLogging { get; set; } = true;
+    
     /// <summary>
     /// Default service lifetime for all discovered types.
     /// </summary>
