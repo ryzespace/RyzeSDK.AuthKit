@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastru
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration", "{9C2A8837-D989-47B9-A965-F5FA21047483}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthKit.Console", "Integration\AuthKit.Console\AuthKit.Console.csproj", "{0A9C0568-7FAA-4E82-9D11-B064833221F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthKit.Cli", "Integration\AuthKit.Cli\AuthKit.Cli.csproj", "{0A9C0568-7FAA-4E82-9D11-B064833221F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

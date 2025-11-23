@@ -1,8 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AuthKit.CLI;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace AuthKit.Console.Configuration;
+namespace AuthKit.Cli.Configuration;
 
 public static class HostBuilderExtensions
 {
@@ -16,7 +17,7 @@ public static class HostBuilderExtensions
 
     private static IServiceCollection ConfigureApp(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<ServerInitializer>();
+        services.AddSingleton<IConsoleApp, ConsoleApp>();
         return services;
     }
 }

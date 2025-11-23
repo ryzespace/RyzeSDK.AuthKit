@@ -64,4 +64,6 @@
 	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
   &lt;Assembly Path="C:\Users\Lunix\.nuget\packages\keycloak.authservices.sdk\2.7.0\lib\net8.0\Keycloak.AuthServices.Sdk.dll" /&gt;&#xD;
   &lt;Assembly Path="C:\Users\Lunix\.nuget\packages\keycloak.netcore.client\1.0.2\lib\net8.0\NETCore.Keycloak.Client.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\Lunix\.nuget\packages\system.commandline\2.0.0\lib\net8.0\System.CommandLine.dll" /&gt;&#xD;
+  &lt;Assembly Path="C:\Users\Lunix\.nuget\packages\commandlineparser\2.9.1\lib\netstandard2.0\CommandLine.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String></wpf:ResourceDictionary>

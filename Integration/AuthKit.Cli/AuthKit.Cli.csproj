@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>ak</ToolCommandName>
+        <PackageId>AuthKit.CLI</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Zarin(Lunix)</Authors>
+        <Company>RyzeSpace</Company>
+        <Description>AuthKit - Utility for key rotation, developer tokens, diagnostics and AuthKit server management.</Description>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+
+        <PackAsToolShimRuntimeIdentifiers>win-x64;linux-x64;osx-x64;osx-arm64</PackAsToolShimRuntimeIdentifiers>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CommandLineParser" Version="2.9.1" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Commands\" />
+    </ItemGroup>
+</Project>
