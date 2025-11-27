@@ -1,7 +1,8 @@
 ﻿using Domain.Features.DeveloperTokens;
+using Domain.Features.DeveloperTokens.Repositories;
 using Marten;
 
-namespace Infrastructure.Persistence.DeveloperTokens;
+namespace Infrastructure.Repositories.DeveloperTokens;
 
 /// <summary>
 /// Repository for managing <see cref="DeveloperToken"/> persistence using Marten.

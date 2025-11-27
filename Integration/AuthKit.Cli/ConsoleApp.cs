@@ -1,27 +1,26 @@
-﻿using System.Reflection;
-using AuthKit.Cli;
+﻿using AuthKit.Cli.Commands;
+using AuthKit.Cli.Interfaces;
+using AuthKit.Cli.Spectre;
+using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console.Cli;
 
-namespace AuthKit.CLI;
+namespace AuthKit.Cli;
 
-public class ConsoleApp : IConsoleApp
+public sealed class ConsoleApp(IServiceCollection services)
 {
+
     public void Run(string[] args)
     {
-        if (args.Length != 1 || (args[0] != "-v" && args[0] != "--version")) return;
-        ShowVersion();
-    }
-    
-    private static void ShowVersion()
-    {
-        var version = Assembly.GetExecutingAssembly()
-            .GetName()
-            .Version;
+        Console.WriteLine("?? Starting AuthKit CLI...");
         
-        var informationalVersion = Assembly.GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-            .InformationalVersion;
-
-        Console.WriteLine($"AuthKit CLI v{informationalVersion ?? version?.ToString() ?? "1.0.0"}");
-        Console.WriteLine("Copyright (C) 2025 RyzeSpace");
+        var registrar = new TypeRegistrar(services);
+        var app = new CommandApp(registrar);
+       
+        app.Configure(cfg =>
+        {
+            cfg.PropagateExceptions();
+            TestCommand.Configure(cfg);
+        });
+        app.Run(args);
     }
 }

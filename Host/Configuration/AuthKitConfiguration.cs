@@ -34,7 +34,7 @@ public static class AuthKitConfiguration
 
         // RSA / JWT key stores
         services.AddSingleton<IKeyGenerator, RsaKeyGenerator>();
-        services.AddScoped<IKeyStorePersistence, KeyStorePersistence>();
+        services.AddScoped<IKeyStoreRepository, KeyStoreRepository>();
         services.AddScoped<IJwtKeyStore, JwtKeyStore>();
         services.AddHostedService<JwtKeyStoreInitializer>();
     }

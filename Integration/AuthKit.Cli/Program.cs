@@ -7,5 +7,5 @@ using var host = Host.CreateDefaultBuilder(args)
     .UseAuthKitConsole()
     .Build();
 
-var app = host.Services.GetRequiredService<IConsoleApp>();
+var app = host.Services.GetRequiredService<ConsoleApp>();
 app.Run(args);

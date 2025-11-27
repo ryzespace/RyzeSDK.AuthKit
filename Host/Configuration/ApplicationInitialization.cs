@@ -59,7 +59,7 @@ public static class ApplicationInitialization
                 opts.ExcludedTypes.Add(typeof(AesKeyEncryptor));
                 opts.ExcludedTypes.Add(typeof(RsaKeyGenerator));
                 opts.ExcludedTypes.Add(typeof(JwtKeyStore));
-                opts.ExcludedTypes.Add(typeof(KeyStorePersistence));
+                opts.ExcludedTypes.Add(typeof(KeyStoreRepository));
             }, discoveryLogger)
             .AddFluentValidation();
 

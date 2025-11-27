@@ -10,7 +10,7 @@
 /// <item>The data is expected to be already encrypted by <see cref="IKeyEncryptor"/> before saving.</item>
 /// </list>
 /// </remarks>
-public interface IKeyStorePersistence
+public interface IKeyStoreRepository
 {
     /// <summary>
     /// Asynchronously loads the persisted keystore bytes.

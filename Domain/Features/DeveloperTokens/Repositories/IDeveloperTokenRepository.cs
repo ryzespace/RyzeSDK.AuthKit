@@ -1,4 +1,4 @@
-﻿namespace Domain.Features.DeveloperTokens;
+﻿namespace Domain.Features.DeveloperTokens.Repositories;
 
 /// <summary>
 /// Repository interface for managing <see cref="DeveloperToken"/> entities.

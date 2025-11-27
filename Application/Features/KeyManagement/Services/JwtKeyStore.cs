@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Buffers.Text;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
@@ -18,11 +18,11 @@ namespace Application.Features.KeyManagement.Services;
 /// <item>Maintains in-memory key entries with metadata.</item>
 /// <item>Supports key rotation and marking keys as revoked.</item>
 /// <item>Provides JWKS-compliant public keys for signature verification.</item>
-/// <item>Persists encrypted key material using <see cref="IKeyStorePersistence"/> and <see cref="IKeyEncryptor"/>.</item>
+/// <item>Persists encrypted key material using <see cref="IKeyStoreRepository"/> and <see cref="IKeyEncryptor"/>.</item>
 /// <item>Designed for asynchronous initialization and disposal of cryptographic resources.</item>
 /// </list>
 /// </remarks>
-public class JwtKeyStore(IKeyStorePersistence persistence, IKeyEncryptor encryptor, IKeyGenerator generator)
+public class JwtKeyStore(IKeyStoreRepository repository, IKeyEncryptor encryptor, IKeyGenerator generator)
     : IJwtKeyStore, IAsyncDisposable
 {
     private readonly ConcurrentDictionary<string, KeyEntry> _keys = new();
@@ -32,7 +32,7 @@ public class JwtKeyStore(IKeyStorePersistence persistence, IKeyEncryptor encrypt
     
     public async Task InitializeAsync()
     {
-        var enc = await persistence.LoadAsync().ConfigureAwait(false);
+        var enc = await repository.LoadAsync().ConfigureAwait(false);
         if (enc.Length > 0)
         {
             var decrypted = encryptor.Decrypt(enc.ToArray());
@@ -161,7 +161,7 @@ public class JwtKeyStore(IKeyStorePersistence persistence, IKeyEncryptor encrypt
         var data = new KeystoreOnDisk(_activeKid, records);
         var json = JsonSerializer.Serialize(data);
         var enc = encryptor.Encrypt(json);
-        await persistence.SaveAsync(enc).ConfigureAwait(false);
+        await repository.SaveAsync(enc).ConfigureAwait(false);
     }
 
     private static string Base64UrlEncode(byte[] input)
