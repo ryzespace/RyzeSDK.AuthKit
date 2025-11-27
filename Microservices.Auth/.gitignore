@@ -1,6 +1,0 @@
-/certs/devcert.pfx
-bin/
-obj/
-.idea/
-.env
-/net-commander
