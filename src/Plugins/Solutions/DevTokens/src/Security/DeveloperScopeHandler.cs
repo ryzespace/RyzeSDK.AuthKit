@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Infrastructure.Security.DeveloperScope;
+namespace DevTokens.Security;
 
 /// <summary>
-/// Authorization handler that verifies if the user possesses the required scope in a developer token.
+/// Authorization handler that verifies if the user possesses the required scope in developer token.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
@@ -28,7 +28,7 @@ public class DeveloperScopeHandler : AuthorizationHandler<DeveloperScopeRequirem
         if (devIdentity == null) return Task.CompletedTask;
 
         var scopes = devIdentity.FindAll("scope").Select(c => c.Value).ToList();
-        
+
         if (requirement.RequiredScope != null && scopes.Contains(requirement.RequiredScope))
             context.Succeed(requirement);
         return Task.CompletedTask;
