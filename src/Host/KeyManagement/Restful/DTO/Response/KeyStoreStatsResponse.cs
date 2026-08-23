@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Infrastructure.Restful.Jwks.DTO.Response;
+namespace Host.KeyManagement.Restful.DTO.Response;
 
 /// <summary>
 /// Represents statistical information about the key store state.

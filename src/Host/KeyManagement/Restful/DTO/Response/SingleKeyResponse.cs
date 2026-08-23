@@ -1,10 +1,10 @@
 ﻿using System.Text.Json.Serialization;
-using Application.Features.KeyManagement.DTO;
+using Core.KeyManagement.DTO;
 
-namespace Infrastructure.Restful.Jwks.DTO.Response;
+namespace Host.KeyManagement.Restful.DTO.Response;
 
 /// <summary>
-/// Represents a single JSON Web Key (JWK) with its associated metadata.
+/// Represents single JSON Web Key (JWK) with its associated metadata.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">

@@ -1,13 +1,11 @@
-﻿using Application;
-using Application.Features.KeyManagement.DTO;
-using Application.Features.KeyManagement.Interfaces;
-using Infrastructure.Restful.Jwks.DTO.Response;
+﻿using Core;
+using Core.KeyManagement.DTO;
+using Core.KeyManagement.Interfaces;
+using Host.KeyManagement.Restful.DTO.Response;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Restful.Jwks;
+namespace Host.KeyManagement.Restful;
 
 /// <summary>
 /// Exposes the JSON Web Key Set (JWKS) endpoint for public key discovery.
@@ -26,9 +24,31 @@ public class JwksController(IJwtKeyStore keyStore, ILogger<JwksController> logge
     #region Public JWKS Endpoints
 
     /// <summary>
-    /// Returns all currently active public keys in JWKS format.
+    /// Returns all currently available public signing keys in JWKS format.
     /// </summary>
-    /// <returns>A <see cref="JwksResponse"/> containing all active public keys.</returns>
+    /// <returns>
+    /// A <see cref="JwksResponse"/> containing the public JWK representations
+    /// of all non revoked signing keys.
+    /// </returns>
+    /// <remarks>
+    /// <para>
+    /// This endpoint is intended for JWT consumers that need to discover
+    /// the public keys required to validate token signatures.
+    /// </para>
+    /// <para>
+    /// Multiple keys may be returned simultaneously to support signing key
+    /// rotation while tokens signed with previously active keys remain
+    /// verifiable.
+    /// </para>
+    /// <para>
+    /// The response is publicly accessible and cached for one hour.
+    /// The <c>X-Key-Count</c> response header contains the number of
+    /// published keys and <c>X-Generated-At</c> contains the response
+    /// generation timestamp.
+    /// </para>
+    /// </remarks>
+    /// <response code="200">The JWKS document was successfully generated.</response>
+    /// <response code="500">The public key set could not be retrieved.</response>
     [AllowAnonymous]
     [HttpGet]
     [ResponseCache(Duration = 3600, Location = ResponseCacheLocation.Any, VaryByHeader = "Accept")]
@@ -93,7 +113,7 @@ public class JwksController(IJwtKeyStore keyStore, ILogger<JwksController> logge
                     Alg: k.Alg,
                     N: k.N,
                     E: k.E,
-                    X5c: k.X5c?.ToArray() ?? []
+                    X5c: k.X5c.ToArray()
                 ))
                 .FirstOrDefault();
 

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Infrastructure.Restful.Jwks.DTO.Response;
+namespace Host.KeyManagement.Restful.DTO.Response;
 
 /// <summary>
 /// Represents the current health status of the key management subsystem.
