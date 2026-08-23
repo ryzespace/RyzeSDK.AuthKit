@@ -1,4 +1,4 @@
-namespace Application.Features.DeveloperTokens;
+namespace DevTokens;
 
 /// <summary>
 /// Represents the authenticated principal of a developer token.

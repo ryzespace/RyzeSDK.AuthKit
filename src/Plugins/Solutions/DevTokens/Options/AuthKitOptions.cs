@@ -1,4 +1,4 @@
-﻿namespace Application.Options;
+﻿namespace DevTokens.Options;
 
 /// <summary>
 /// Configuration options for the AuthKit module.
