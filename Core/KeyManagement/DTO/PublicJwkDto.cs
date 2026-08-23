@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Application.Features.KeyManagement.DTO;
+namespace Core.KeyManagement.DTO;
 
 /// <summary>
-/// Represents a public JSON Web Key (JWK) exposed in the JWKS endpoint.
+/// Represents public JSON Web Key (JWK) exposed in the JWKS endpoint.
 /// </summary>
 /// <remarks>
 /// <list type="bullet">
@@ -22,7 +22,7 @@ public record PublicJwkDto(
     [property: JsonPropertyName("x5c")] string[] X5c
 ) {
     /// <summary>
-    /// Initializes a new <see cref="PublicJwkDto"/> with standard defaults (RSA/RS256).
+    /// Initializes new <see cref="PublicJwkDto"/> with standard defaults (RSA/RS256).
     /// </summary>
     public PublicJwkDto() 
         : this("RSA", "sig", string.Empty, "RS256", string.Empty, string.Empty, []) {}
