@@ -8,8 +8,8 @@ on:
 
 env:
   DOTNET_VERSION: '10.0.x'
-  SOLUTION_FILE: 'RyzeSDK.AuthKit.sln'
-  HOST_PROJECT: 'Host/Host.csproj'
+  SOLUTION_FILE: 'AuthKit.slnx'
+  HOST_PROJECT: 'src/Host/Host.csproj'
 
 jobs:
   build:
