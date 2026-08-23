@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Application;
+namespace Core;
 
 /// <summary>
 /// Standardized error response DTO for RESTful endpoints.
