@@ -1,4 +1,4 @@
-namespace Host;
+namespace Host.ServiceDiscovery;
 
 /// <summary>
 /// Filters types during service discovery for automatic DI registration.
@@ -6,10 +6,10 @@ namespace Host;
 /// <remarks>
 /// <list type="bullet">
 /// <item>Detects type category based on namespace markers (DTO, Entity, Repository, Services, etc.).</item>
-/// <item>Extracts a feature name from ".Features.{FeatureName}".</item>
+/// <item>Extracts feature name from the namespace segment right after the layer root.</item>
 /// <item>Extracts layer from the namespace root (Application, Domain, Infrastructure, etc.).</item>
 /// <item>Applies <see cref="ServiceDiscoveryOptions"/> including allowed/excluded namespaces, layers, interfaces, exceptions, and types.</item>
-/// <item>Logs a clear debug message indicating decision, layer, type category, feature, and full type name.</item>
+/// <item>Logs clear debug message indicating decision, layer, type category, feature, and full type name.</item>
 /// </list>
 /// </remarks>
 public static class ServiceDiscoveryFilter
@@ -28,7 +28,7 @@ public static class ServiceDiscoveryFilter
     ];
 
     /// <summary>
-    /// Determines if a type is valid for automatic DI registration.
+    /// Determines if type is valid for automatic DI registration.
     /// </summary>
     /// <param name="type">Type to evaluate.</param>
     /// <param name="logger">Logger for debug output.</param>
@@ -45,7 +45,8 @@ public static class ServiceDiscoveryFilter
 
         if (opts.EnableLogging)
         {
-            logger.LogDebug("{Decision} Layer({Layer}) Type({TypeKind}) Feature({Feature}): {Type}",
+            logger.LogDebug(
+                "{Decision} Layer({Layer}) Type({TypeKind}) Feature({Feature}): {Type}",
                 include ? "Including" : "Skipping",
                 layer,
                 detectedType,
@@ -56,42 +57,37 @@ public static class ServiceDiscoveryFilter
         return include;
     }
 
-    
-    
-    
-    
     /// <summary>
     /// Returns the first namespace segment (layer), e.g. "Application", "Domain".
     /// </summary>
     private static string GetLayer(string ns)
-        => ns.Split('.', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "Unknown";
+        => ns.Split('.', StringSplitOptions.RemoveEmptyEntries)
+            .FirstOrDefault() ?? "Unknown";
 
     /// <summary>
-    /// Detects a type group (DTO, Entity, Service, etc.) based on namespace markers.
+    /// Detects type group (DTO, Entity, Service, etc.) based on namespace markers.
     /// </summary>
     private static string GetDetectedType(string ns)
     {
         foreach (var (key, name) in NamespaceTypes)
+        {
             if (ns.Contains(key))
                 return name;
+        }
 
         return "Allowed";
     }
 
     /// <summary>
-    /// Extracts feature (the part after ".Features.") or returns "Global".
+    /// Extracts feature (the namespace segment right after the layer root, e.g.
+    /// "KeyManagement" from "Core.KeyManagement.Services") or returns "Global".
     /// </summary>
     private static string GetFeature(string ns)
     {
-        const string segment = ".Features.";
-        var idx = ns.IndexOf(segment, StringComparison.Ordinal);
-        if (idx < 0) return "Global";
-
-        var start = idx + segment.Length;
-        var end = ns.IndexOf('.', start);
-        return end > 0 ? ns[start..end] : ns[start..];
+        var parts = ns.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length > 1 ? parts[1] : "Global";
     }
-    
+
     /// <summary>
     /// Applies <see cref="ServiceDiscoveryOptions"/> rules to decide inclusion.
     /// </summary>
