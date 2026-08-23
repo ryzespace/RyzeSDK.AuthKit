@@ -1,4 +1,4 @@
-﻿using Host.Configuration.Factory;
+﻿using Host.Plugins;
 using JasperFx;
 using Marten;
 using Wolverine;
@@ -8,23 +8,36 @@ using Wolverine.Marten;
 namespace Host.Configuration;
 
 /// <summary>
-/// Provides infrastructure-level configuration for the application.
+/// Provides extension methods for configuring application infrastructure.
 /// </summary>
 /// <remarks>
-/// <list type="bullet">
-/// <item>Registers Wolverine</item>
-/// </list>
+/// <para>
+/// Configures Wolverine messaging and Marten document persistence used by the
+/// AuthKit host.
+/// Wolverine is configured to discover handlers from the Core assembly and
+/// dynamically loaded plugin assemblies, while FluentValidation is integrated
+/// into message processing.
+/// </para>
 /// </remarks>
 public static class InfrastructureConfiguration
 {
+    /// <summary>
+    /// Configures Wolverine for the application host.
+    /// </summary>
+    /// <param name="builder">web application builder used to configure Wolverine and logging.</param>
+    /// <param name="plugins">
+    /// The plugins loaded during application startup whose assemblies may
+    /// contain Wolverine message handlers.
+    /// </param>
     public static void ConfigureWolverine(
-        this WebApplicationBuilder  builder)
+        this WebApplicationBuilder  builder,
+        IReadOnlyList<LoadedPlugin> plugins)
     {
         builder.UseWolverine(opts =>
         {
             opts.UseFluentValidation();
-            opts.IncludeEventHandlers();
-            
+            opts.IncludeEventHandlers(plugins);
+
             opts.Policies.MessageExecutionLogLevel(LogLevel.None);
             opts.Policies.MessageSuccessLogLevel(LogLevel.None);
         });

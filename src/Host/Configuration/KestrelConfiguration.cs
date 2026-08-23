@@ -3,22 +3,27 @@
 namespace Host.Configuration;
 
 /// <summary>
-/// Configures Kestrel server with HTTPS endpoints and environment-based certificate settings.
+/// Provides configuration helpers for the Kestrel web server.
 /// </summary>
 /// <remarks>
-/// <list type="bullet">
-/// <item><description>Reads certificate path, password, and REST/gRPC ports from environment variables.</description></item>
-/// <item><description>Falls back to default values for local development if environment variables are missing.</description></item>
-/// <item><description>Validates certificate existence and warns if the password is missing.</description></item>
-/// <item><description>Sets REST endpoint with HTTP/1 + HTTP/2 and gRPC endpoint with HTTP/2 only.</description></item>
-/// </list>
+/// <para>
+/// Configures HTTPS listeners for the REST and gRPC endpoints using a
+/// certificate and connection settings supplied through environment variables.
+/// </para>
+/// <para>REST supports both HTTP/1.1 and HTTP/2, while the gRPC endpoint is restrictedto HTTP/2.</para>
+/// <para>When configuration environment variables are not provided, development defaults are used.</para>
 /// </remarks>
 public static class KestrelConfiguration
 {
     /// <summary>
-    /// Configures Kestrel server with HTTPS listeners for REST and gRPC using the provided certificate settings.
+    /// Configures Kestrel with HTTPS listeners for the REST and gRPC endpoints.
     /// </summary>
-    /// <param name="webHost">The <see cref="IWebHostBuilder"/> to configure.</param>
+    /// <param name="webHost">The web host builder used to configure Kestrel.</param>
+    /// <remarks>
+    /// Reads the certificate path, certificate password, and REST and gRPC ports
+    /// from the corresponding environment variables. Missing values fall back to
+    /// development defaults.
+    /// </remarks>
     public static void ConfigureKestrelServer(this IWebHostBuilder webHost)
     {
         var (certPath, certPassword, portRest, portGrpc) = LoadSettings();
@@ -32,6 +37,13 @@ public static class KestrelConfiguration
 
     #region Helper Methods
 
+    /// <summary>
+    /// Loads Kestrel certificate and endpoint settings from environment variables.
+    /// </summary>
+    /// <returns>
+    /// A tuple containing the certificate path, certificate password,
+    /// REST port, and gRPC port.
+    /// </returns>
     private static (string certPath, string certPassword, int portRest, int portGrpc) LoadSettings()
     {
         var certPath = Environment.GetEnvironmentVariable("DEV_CERT_PATH") ?? "/root/certs/devcert.pfx";
@@ -42,6 +54,12 @@ public static class KestrelConfiguration
         return (certPath, certPassword, portRest, portGrpc);
     }
 
+    /// <summary>
+    /// Validates the configured HTTPS certificate settings and writes warnings
+    /// for missing certificate files or passwords.
+    /// </summary>
+    /// <param name="certPath">Path to the HTTPS certificate file.</param>
+    /// <param name="certPassword">Password used to load the certificate.</param>
     private static void ValidateCertificate(string certPath, string certPassword)
     {
         if (!File.Exists(certPath))
@@ -59,11 +77,19 @@ public static class KestrelConfiguration
         }
     }
 
+    /// <summary>
+    /// Configures the Kestrel listeners for REST and gRPC traffic.
+    /// </summary>
+    /// <param name="webHost">The web host builder used to configure Kestrel.</param>
+    /// <param name="certPath">Path to the HTTPS certificate file.</param>
+    /// <param name="certPassword">Password used to load the HTTPS certificate.</param>
+    /// <param name="portRest">Port used by the REST endpoint.</param>
+    /// <param name="portGrpc">Port used by the gRPC endpoint.</param>
     private static void ConfigureListeners(
-        IWebHostBuilder webHost, 
-        string certPath, 
-        string certPassword, 
-        int portRest, 
+        IWebHostBuilder webHost,
+        string certPath,
+        string certPassword,
+        int portRest,
         int portGrpc)
     {
         webHost.ConfigureKestrel(options =>

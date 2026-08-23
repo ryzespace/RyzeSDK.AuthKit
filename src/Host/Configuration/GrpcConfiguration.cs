@@ -1,24 +1,27 @@
-﻿using Host.Services;
+﻿using Host.Grpc;
 
 namespace Host.Configuration;
 
 /// <summary>
-/// Provides extension methods to configure gRPC services and map gRPC endpoints in the application.
+/// Provides extension methods for configuring gRPC services and endpoints.
 /// </summary>
 /// <remarks>
-/// <list type="bullet">
-/// <item><description>Registers gRPC services in the DI container.</description></item>
-/// <item><description>Supports adding global interceptors for exception handling or logging (commented placeholder included).</description></item>
-/// <item><description>Maps gRPC service endpoints to the application's request pipeline.</description></item>
-/// </list>
+/// <para>
+/// Registers gRPC services with the applications dependency injection
+/// container and maps the available gRPC service implementations to the
+/// request pipeline.
+/// Global gRPC interceptors can be registered through the gRPC configuration
+/// when cross cutting concerns such as exception handling or request logging
+/// are required.
+/// </para>
 /// </remarks>
 public static class GrpcConfiguration
 {
     /// <summary>
-    /// Adds gRPC services to the <see cref="IServiceCollection"/>.
+    /// Registers gRPC services with the dependency injection container.
     /// </summary>
-    /// <param name="services">The <see cref="IServiceCollection"/> to configure.</param>
-    /// <returns>The configured <see cref="IServiceCollection"/> for method chaining.</returns>
+    /// <param name="services">The service collection used to register gRPC services.</param>
+    /// <returns>The configured <see cref="IServiceCollection"/> instance.</returns>
     public static IServiceCollection AddGrpcServices(this IServiceCollection services)
     {
         services.AddGrpc(options =>
