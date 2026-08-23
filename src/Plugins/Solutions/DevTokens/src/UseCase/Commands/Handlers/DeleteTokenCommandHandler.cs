@@ -1,7 +1,7 @@
-﻿using Application.Features.DeveloperTokens.Interfaces;
-using Application.Features.DeveloperTokens.UseCase.Commands.Requests;
+﻿using DevTokens.Interfaces;
+using DevTokens.UseCase.Commands.Requests;
 
-namespace Application.Features.DeveloperTokens.UseCase.Commands.Handlers;
+namespace DevTokens.UseCase.Commands.Handlers;
 
 /// <summary>
 /// Handles the <see cref="DeleteTokenCommand"/> command.

@@ -1,4 +1,4 @@
-﻿namespace Application.Features.DeveloperTokens.UseCase.Commands.Requests;
+﻿namespace DevTokens.UseCase.Commands.Requests;
 
 /// <summary>
 /// Command for creating a new developer token.

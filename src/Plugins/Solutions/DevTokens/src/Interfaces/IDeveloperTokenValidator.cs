@@ -1,4 +1,6 @@
-namespace Application.Features.DeveloperTokens.Interfaces;
+using DevTokens.DeveloperTokens;
+
+namespace DevTokens.Interfaces;
 
 /// <summary>
 /// Interface for validating developer JWT tokens.

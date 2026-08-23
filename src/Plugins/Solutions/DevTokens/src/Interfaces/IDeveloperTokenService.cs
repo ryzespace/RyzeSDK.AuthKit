@@ -1,7 +1,7 @@
-﻿using Application.Features.DeveloperTokens.DTO;
-using Domain.Features.DeveloperTokens;
+﻿using DevTokens.DeveloperTokens;
+using DevTokens.DTO;
 
-namespace Application.Features.DeveloperTokens.Interfaces;
+namespace DevTokens.Interfaces;
 
 /// <summary>
 /// Service responsible for generating JWT tokens for developer tokens.
@@ -15,7 +15,7 @@ namespace Application.Features.DeveloperTokens.Interfaces;
 public interface IDeveloperTokenService
 {
     /// <summary>
-    /// Generates a signed JWT string for the specified <see cref="DeveloperToken"/>.
+    /// Generates signed JWT string for the specified <see cref="DeveloperToken"/>.
     /// </summary>
     /// <param name="token">The developer token entity for which to generate a JWT.</param>
     /// <returns>A <see cref="Task{TResult}"/> containing the signed JWT string.</returns>

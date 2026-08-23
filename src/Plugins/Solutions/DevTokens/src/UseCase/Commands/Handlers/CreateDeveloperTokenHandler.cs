@@ -1,12 +1,13 @@
-﻿using Application.Features.DeveloperTokens.DTO;
-using Application.Features.DeveloperTokens.Interfaces;
-using Application.Features.DeveloperTokens.UseCase.Commands.Requests;
-using Application.Options;
-using Domain.Features.DeveloperTokens;
-using Domain.Features.DeveloperTokens.Repositories;
+﻿using DevTokens.DeveloperTokens;
+using DevTokens.DTO;
+using DevTokens.Exceptions;
+using DevTokens.Interfaces;
+using DevTokens.Options;
+using DevTokens.Repositories;
+using DevTokens.UseCase.Commands.Requests;
 using Microsoft.Extensions.Options;
 
-namespace Application.Features.DeveloperTokens.UseCase.Commands.Handlers;
+namespace DevTokens.UseCase.Commands.Handlers;
 
 /// <summary>
 /// Handles the <see cref="CreateDeveloperTokenCommand"/> command.

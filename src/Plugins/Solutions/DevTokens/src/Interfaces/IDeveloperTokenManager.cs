@@ -1,7 +1,6 @@
-﻿using Application.Features.DeveloperTokens.DTO;
-using Domain.Features.DeveloperTokens;
+﻿using DevTokens.DTO;
 
-namespace Application.Features.DeveloperTokens.Interfaces;
+namespace DevTokens.Interfaces;
 
 /// <summary>
 /// Provides operations for managing developer tokens.

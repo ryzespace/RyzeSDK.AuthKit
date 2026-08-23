@@ -1,9 +1,9 @@
 using System.Security.Claims;
-using Application.Features.DeveloperTokens.Interfaces;
+using DevTokens.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
-namespace Infrastructure.Restful.Middleware;
+namespace DevTokens.Middleware;
 
 /// <summary>
 /// Middleware responsible for validating "DeveloperToken" headers and enriching <see cref="HttpContext.User"/>.
@@ -12,9 +12,9 @@ namespace Infrastructure.Restful.Middleware;
 /// <list type="bullet">
 /// <item>Checks for the presence of the "X-Developer-Token" header.</item>
 /// <item>Validates the token using <see cref="IDeveloperTokenValidator"/>.</item>
-/// <item>Adds a <see cref="ClaimsIdentity"/> to <see cref="HttpContext.User"/> containing the developer ID, name, and scopes.</item>
+/// <item>Adds <see cref="ClaimsIdentity"/> to <see cref="HttpContext.User"/> containing the developer ID, name, and scopes.</item>
 /// <item>Logs validation success or failure for observability.</item>
-/// <item>Does not short-circuit the request; the pipeline continues regardless of token validity.</item>
+/// <item>Does not short circuit the request, the pipeline continues regardless of token validity.</item>
 /// </list>
 /// </remarks>
 public class DeveloperTokenMiddleware(RequestDelegate next, ILogger<DeveloperTokenMiddleware> logger)

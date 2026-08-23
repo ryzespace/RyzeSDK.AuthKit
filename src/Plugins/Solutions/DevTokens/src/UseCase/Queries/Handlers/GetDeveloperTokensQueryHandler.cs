@@ -1,8 +1,8 @@
-﻿using Application.Features.DeveloperTokens.DTO;
-using Application.Features.DeveloperTokens.Interfaces;
-using Application.Features.DeveloperTokens.UseCase.Queries.Requests;
+﻿using DevTokens.DTO;
+using DevTokens.Interfaces;
+using DevTokens.UseCase.Queries.Requests;
 
-namespace Application.Features.DeveloperTokens.UseCase.Queries.Handlers;
+namespace DevTokens.UseCase.Queries.Handlers;
 
 /// <summary>
 /// Handles the <see cref="GetDeveloperTokensQuery"/> query.

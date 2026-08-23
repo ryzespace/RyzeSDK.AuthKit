@@ -1,4 +1,4 @@
-﻿namespace Application.Features.DeveloperTokens.UseCase.Queries.Requests;
+﻿namespace DevTokens.UseCase.Queries.Requests;
 
 /// <summary>
 /// Query for retrieving all developer tokens associated with a specific developer.

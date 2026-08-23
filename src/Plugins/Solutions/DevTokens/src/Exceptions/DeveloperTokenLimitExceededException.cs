@@ -1,7 +1,10 @@
-﻿namespace Domain.Features.DeveloperTokens;
+﻿using Core;
+
+namespace DevTokens.Exceptions;
 
 /// <summary>
-/// Exception thrown when a developer exceeds the allowed number of tokens.
+/// Represents domain exception raised when developer exceeds the
+/// maximum number of developer tokens allowed.
 /// </summary>
 /// <param name="developerId">The unique identifier of the developer who exceeded the limit.</param>
 /// <param name="limit">The maximum number of tokens allowed per developer.</param>

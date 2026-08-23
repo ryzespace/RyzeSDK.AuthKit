@@ -1,7 +1,7 @@
-﻿using Application.Features.DeveloperTokens.UseCase.Commands.Requests;
+﻿using DevTokens.UseCase.Commands.Requests;
 using FluentValidation;
 
-namespace Application.Features.DeveloperTokens.UseCase.Commands.Validations;
+namespace DevTokens.UseCase.Commands.Validations;
 
 /// <summary>
 /// Validator for <see cref="CreateDeveloperTokenCommand"/>.
