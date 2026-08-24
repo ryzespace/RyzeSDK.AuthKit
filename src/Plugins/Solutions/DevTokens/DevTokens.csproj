@@ -16,7 +16,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Core\Core.csproj" />
+    <ProjectReference Include="..\..\..\Core\Core.csproj" />
     <ProjectReference Include="..\..\Abstractions\AuthKit.Plugins.Abstractions.csproj" />
   </ItemGroup>
 </Project>

@@ -27,7 +27,7 @@
     <Protobuf Include="Grpc\protos\**\*.proto" ProtoRoot="Grpc" GrpcServices="Both" Access="Public" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\Core.csproj" />
-    <ProjectReference Include="..\..\Plugins\Abstractions\AuthKit.Plugins.Abstractions.csproj" />
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Plugins\Abstractions\AuthKit.Plugins.Abstractions.csproj" />
   </ItemGroup>
 </Project>

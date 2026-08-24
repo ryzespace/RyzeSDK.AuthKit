@@ -1,4 +1,4 @@
-name: 🚀 Build RyzeSpace Auth Microservice (Dev Accounts)
+name: Build AuthKit Server
 
 on:
   push:
@@ -13,7 +13,7 @@ env:
 
 jobs:
   build:
-    name: 🔨 Build on ${{ matrix.os }} (${{ matrix.runtime }})
+    name: Build on ${{ matrix.os }} (${{ matrix.runtime }})
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -61,10 +61,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: auth-service-${{ matrix.runtime }}
-          path: ./publish/${{ matrix.runtime }}     
+          path: ./publish/${{ matrix.runtime }}
 
   attest:
-    name: 🛡️ Attest Build Provenance
+    name: Attest Build Provenance
     needs: build
     runs-on: ubuntu-latest
     permissions:
