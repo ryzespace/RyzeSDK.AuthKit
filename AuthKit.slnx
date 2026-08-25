@@ -1,0 +1,16 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Plugins/" />
+  <Folder Name="/Plugins/Abstractions/">
+    <Project Path="src/Plugins/Abstractions/AuthKit.Plugins.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/Plugins/Solutions/">
+    <Project Path="src/Plugins/Solutions/DevTokens/DevTokens.csproj" />
+  </Folder>
+  <Project Path="src/Core/Core.csproj" />
+  <Project Path="src/Host/Host.csproj" />
+</Solution>

@@ -1,6 +1,6 @@
 <div align="center">
 
-# RyzeSDK.AuthKit
+# AuthKit
 
 ### Developer Authentication & SDK Access Service
 
@@ -9,141 +9,142 @@
 
 </div>
 
-![banners](banners.png)
 ---
 
 ## Overview
-RyzeSDK.AuthKit is the **centralized microservice** for handling **developer authentication, SDK token issuance, and access verification** across the RyzeSpace SDK ecosystem.
 
-It ensures that only authorized developers can access SDK methods and provides a secure, auditable token-based authentication mechanism.
+AuthKit is **plugin based service** for handling **developer authentication, SDK token issuance, and access verification**. It ensures that only authorized developers can access SDK methods and provides secure, auditable token-based authentication mechanism.
 
-## Why AuthKit Matters
+AuthKit validates user identity through **Keycloak**, issues signed developer tokens (JWT), and exposes both **RESTful** and **gRPC** endpoints so SDK clients can request, verify, and manage tokens.
 
-In a distributed SDK ecosystem, AuthKit provides:
+## Features
 
-- **Secure Access** — Issue and validate dev tokens for SDK usage
-- **Role Enforcement** — Restrict SDK methods to authorized roles (SDK_Dev)
-- **Audit & Traceability** — Track issued tokens and access events
-- **Extensibility** — Easy to add policies, limits, or new developer roles
+- **Secure Access** - Issue and validate developer tokens for SDK usage
+- **Role & Scope Enforcement** - Restrict SDK methods to authorized roles and token scopes
+- **Key Management** - RSA signing-key generation, AES-encrypted key storage, JWKS discovery, and key rotation
+- **Plugin Architecture** - Functionality is delivered through dynamically discovered plugins (`IAuthKitPlugin`)
+- **Extensible** - Add new token types, policies, or SDK solutions without modifying the host
+- **Dual Transport** - Same services exposed over REST (HTTP/2) and gRPC
 
-## Token Flow Example
+## Architecture
 
-- **Developer registers → DevAccessService** issues a token
-- **SDK client** (RyzeSdkClient) stores token
-- **SDK methods** attach token to REST/gRPC requests
-- **AuthKit** verifies token & role → executes method if authorized
+AuthKit is composed of three layers:
 
-## Token Issuance & SDK Request Flow
-```mermaid
-sequenceDiagram
-    participant Dev as Developer
-    participant Keycloak as Keycloak
-    participant AuthKit as AuthKit API
-    participant SDK as RyzeSdkClient
-    participant API as Target API (e.g. Marketplace)
+- **Core** - Shared domain, JWT signing-key management (RSA key generation, AES encryption, on-disk keystore), token key bindings, and core options.
+- **Host** - ASP.NET Core host running on Kestrel. Wires up **Wolverine** - (command/query handling), **Marten** (PostgreSQL event/document store), RESTful and gRPC endpoints, Keycloak integration, CLI, and dynamic plugin loading.
+- **Plugins** - Extensions discovered and loaded dynamically from the `plugins/` directory at startup. A plugin contributes services, middleware, health checks, and OpenAPI security schemes through the `IAuthKitPlugin` contract without being referenced by the host.
 
-    Dev->>Keycloak: Authenticate via Keycloak (JWT access token)
-    Keycloak-->>Dev: Returns access_token (Keycloak JWT)
-
-    Dev->>AuthKit: Request Developer Token<br/>Authorization: Bearer <keycloak_token>
-    AuthKit->>AuthKit: Validate Keycloak token<br/>and create DeveloperToken (JWT)
-    AuthKit-->>Dev: Returns X-Developer-Token (AuthKit JWT)
-
-    SDK->>API: Request with<br/>Authorization: Bearer <keycloak_token><br/>X-Developer-Token: <authkit_token>
-    API->>AuthKit: Validate developer token via REST
-    AuthKit->>Keycloak: Validate user session & roles
-    AuthKit-->>API: DeveloperToken valid ✅
-    API-->>SDK: 200 OK — Operation authorized
+```
+src/
+├── Core/                 # Domain, key management, options
+├── Host/                 # Web host, REST/gRPC, CLI, plugin loader
+│   ├── Configuration/    # Auth, Keycloak, Kestrel, Marten, ServiceDiscovery
+│   ├── Grpc/             # gRPC services and protos
+│   ├── KeyManagement/    # JWKS endpoint, key store initializer
+│   ├── Restful/          # Host-level middleware
+│   └── ServiceDiscovery/ # Automatic DI registration
+└── Plugins/
+    ├── Abstractions/     # IAuthKitPlugin contract
+    └── Solutions/        # Plugin implementations (e.g. DevTokens)
 ```
 
-## External REST vs Internal gRPC Call Flow
-```mermaid
-flowchart TD
-   Dev[Developer] -->|Authenticate| Keycloak[Keycloak JWT]
-   Keycloak --> Dev
+## Plugin Model
 
-   Dev -->|Request Dev Token| AuthKit[AuthKit API]
-   AuthKit -->|Validate Keycloak token| Keycloak
-   AuthKit -->|Return Dev Token| Dev
+Plugins implement `IAuthKitPlugin` and are loaded from the directory configured by `AuthKit:PluginsPath` (defaults to `<base>/plugins`). At startup the host:
 
-   Dev -->|Request Service Token| AuthKitService[AuthKit API]
-   AuthKitService -->|Validate Dev Token| AuthKit
-   AuthKitService -->|Return Service Token| Dev
+1. Discovers and loads plugin assemblies.
+2. Calls `ConfigureServices` to register each plugin's dependencies.
+3. Inserts any contributed `MiddlewareType` into the pipeline.
+4. Exposes contributed OpenAPI security schemes.
+5. Reports plugin health through `CheckHealthAsync`.
 
-   Dev -->|Configure SDK| SDK[RyzeSdkClient]
+This lets new SDK solutions ship as self-contained packages without changing the host project.
 
-   SDK -->|REST request| API_REST[Target API REST]
-   SDK -->|gRPC request| API_GRPC[Target API gRPC]
+## Built-in Plugins
 
-   subgraph REST_Flow
-      API_REST -->|Pass tokens to middleware| AuthKit_REST[AuthKit Middleware REST]
-      AuthKit_REST -->|Validate Dev & Service Tokens| TokenDB[Token Database]
-      AuthKit_REST -->|Validate Keycloak JWT| Keycloak
-      AuthKit_REST -->|Return auth result| API_REST
-      API_REST -->|200 OK / 403 Forbidden| SDK
-   end
+### DevTokens
 
-   subgraph gRPC_Flow
-      API_GRPC -->|Pass tokens to middleware| AuthKit_GRPC[AuthKit Middleware gRPC]
-      AuthKit_GRPC -->|Validate Dev & Service Tokens| TokenDB
-      AuthKit_GRPC -->|Validate Keycloak JWT| Keycloak
-      AuthKit_GRPC -->|Return auth result| API_GRPC
-      API_GRPC -->|200 OK / 403 Forbidden| SDK
-   end
+Issues and validates developer tokens used for SDK access. Exposed REST endpoints:
+
+| Method | Route | Description |
+| --- | --- | --- |
+| `POST` | `sdk/developer-tokens` | Create a developer token |
+| `GET` | `sdk/developer-tokens` | List developer tokens |
+| `GET` | `sdk/developer-tokens/{tokenId}` | Get a token by id |
+| `DELETE` | `sdk/developer-tokens/{tokenId}` | Delete a token |
+| `POST` | `sdk/tokens/verify` | Verify a developer token |
+| `POST` | `sdk/tokens/{tokenId}/revoke-rotate` | Revoke and rotate a token |
+
+Tokens are passed via the `X-Developer-Token` API-key header and enforced by the `DeveloperTokenMiddleware` and scope-based authorization (`DeveloperScopeRequirement`).
+
+## JWT & Key Management
+
+- Signing keys are generated as RSA keys, encrypted with the AES master key (`Encryption:AES_MASTER_KEY`), and persisted in the key store.
+- Public keys are published at `.well-known/jwks.json` for external signature verification.
+- Multiple active keys are supported simultaneously to allow seamless key rotation.
+- Token key bindings associate issued tokens with the signing key used to protect them.
+
+## Authentication
+
+User identity is validated with **Keycloak** JWT bearer authentication. Keycloak is configured through environment variables:
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `KEYCLOAK_URL` | Keycloak base URL | `http://keycloak:8080` |
+| `KEYCLOAK_REALM` | Keycloak realm | `authz` |
+| `KEYCLOAK_CLIENT_ID` | Keycloak client id | `workspace-authz` |
+
+Client roles from the `resource_access` claim are mapped to ASP.NET Core role claims for authorization.
+
+## Configuration
+
+Key `appsettings.json` sections:
+
+| Section | Purpose |
+| --- | --- |
+| `ConnectionStrings:Marten` | PostgreSQL connection for Marten |
+| `AuthKit:MaxDeveloperTokens` | Max tokens per developer (default `3`) |
+| `Encryption:AES_MASTER_KEY` | Master key for encrypting signing keys |
+| `Server:Issuer` | JWT issuer (`https://authkit.local`) |
+| `ServiceDiscovery` | Automatic DI registration rules (namespaces, layers, lifetime) |
+
+## Getting Started
+
+### Run with Docker
+
+```bash
+docker compose up --build
 ```
 
-## SDK Function Call Flow (AuthKit → gRPC Microservices)
-```mermaid
-flowchart TD
-   classDef token fill:#fef3c7,stroke:#f59e0b,stroke-width:1px,color:#b45309;
-   classDef service fill:#fef3c7,stroke:#fef3c7,stroke-width:1px,color:#92400e;
-   classDef internal fill:#dbeafe,stroke:#3b82f6,stroke-width:1px,color:#1e40af;
+This starts AuthKit (REST on `5000`, gRPC on `5001`), a PostgreSQL database, and Keycloak. Configuration is provided via `.env` (see `.env.example`).
 
-%% Actors
-   Dev[Developer] -->|Has Keycloak JWT,<br/>DeveloperToken,<br/>ServiceToken| SDK[RyzeSdkClient]
-   class Dev,SDK token;
+### Run locally
 
-%% REST request from external SDK
-   SDK -->|REST request with tokens| API_Controller[API Controller]
-   API_Controller -->|Validate tokens internally via AuthKit| AuthKit[AuthKit API]
-
-%% gRPC requests
-   API_Controller -->|gRPC call| GRPC_Service[gRPC Service]
-   GRPC_Service -->|gRPC call to other microservice| AnotherService_GRPC[Another gRPC Service]
-
-%% Responses
-   GRPC_Service -->|Return result| API_Controller
-   AnotherService_GRPC -->|Return result| GRPC_Service
-   API_Controller -->|Return response| SDK
-
-%% Styling
-   class Dev,SDK,AuthKit token;
-   class API_Controller,GRPC_Service service;
-   class AnotherService_GRPC internal;
+```bash
+dotnet build AuthKit.slnx
+dotnet run --project src/Host/Host.csproj
 ```
+
+The host listens on the address configured in `Server:Host` (default `http://0.0.0.0:8080`, HTTP/2).
+
+## Documentation
+
+| Topic | Link |
+| --- | --- |
+| Documentation index | [Docs](Docs/README.md) |
+| Schemas & Diagrams | [Schemas](Docs/Schemas.md) |
 
 ## Contributing
 
 We welcome contributions that improve contract clarity, expand integration patterns, or enhance type safety.
 
-### Development Guidelines
-
-1. **Branch Strategy** — Create feature branches from `main`
-   ```bash
-      git checkout -b feature/token-policies
-   ```
-2. **Versioning** — Use semantic versioning (MAJOR.MINOR.PATCH)
-    - MAJOR: Breaking changes
-    - MINOR: New contracts (backward compatible)
-    - PATCH: Bug fixes, documentation
-
-3. **Pull Request** — Provide clear descriptions of changes and impact
+Please read the [Contributing Guide](CONTRIBUTING.md) for setup, workflow, and pull request guidelines.
 
 ## License
 
 **MIT License + Commons Clause**
 
-The RyzeSpace.Contracts library is open source for personal, educational, and research purposes. Commercial use requires explicit permission.
+AuthKit is open source for personal, educational, and research purposes. Commercial use requires explicit permission.
 
 ### Permitted Use ✓
 
@@ -161,22 +162,10 @@ The RyzeSpace.Contracts library is open source for personal, educational, and re
 
 See [LICENSE](LICENSE) for complete terms.
 
----
+## Code of Conduct
 
-<div align="center">
+Please read and follow the [Code of Conduct](CODE_OF_CONDUCT.md) when participating in this project.
 
-### Part of the RyzeSpace Ecosystem
+## Security
 
-**Democratizing access to computational resources through decentralized sharing**
-
-*Every idle GPU, every spare CPU cycle — unlocking potential in the RyzeSpace network*
-
-<br/>
-
-**[Documentation](https://docs.ryzespace.com)** • **[Platform](https://ryzespace.com)** • **[Community](https://discord.gg/JsQx8cQ5yp)**
-
-<br/>
-
-<sub>Built with precision by the RyzeSpace team</sub>
-
-</div>
+For vulnerability reporting, see the [Security Policy](SECURITY.md).

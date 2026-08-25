@@ -62,6 +62,7 @@ services:
       start
       --http-enabled=true
       --hostname-strict=false
+      --import-realm
     environment:
       KC_FEATURES: scripts
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
@@ -70,9 +71,8 @@ services:
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/Auth
       KC_DB_USERNAME: postgres
       KC_DB_PASSWORD: postgres
-      KEYCLOAK_IMPORT: /tmp/keycloak/realm-authz.json
     volumes:
-      - ./keycloak:/tmp/keycloak
+      - ./keycloak/realm-authz.json:/opt/keycloak/data/import/realm-authz.json:ro
     ports:
       - "8081:8080"
     depends_on:

@@ -1,6 +1,7 @@
 /certs/devcert.pfx
 bin/
 obj/
+/plugins/
 .idea/
 .env
 /net-commander
