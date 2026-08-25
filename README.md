@@ -74,9 +74,6 @@ Issues and validates developer tokens used for SDK access. Exposed REST endpoint
 | `DELETE` | `sdk/developer-tokens/{tokenId}` | Delete a token |
 | `POST` | `sdk/tokens/verify` | Verify a developer token |
 | `POST` | `sdk/tokens/{tokenId}/revoke-rotate` | Revoke and rotate a token |
-| `GET` | `sdk/v1/function/vm/dev/createvm` | VM provisioning (sample SDK method) |
-| `GET` | `sdk/v1/function/vm/dev/deletevm` | VM deletion (sample SDK method) |
-| `GET` | `sdk/v1/function/vm/dev/update` | VM update (sample SDK method) |
 
 Tokens are passed via the `X-Developer-Token` API-key header and enforced by the `DeveloperTokenMiddleware` and scope-based authorization (`DeveloperScopeRequirement`).
 
