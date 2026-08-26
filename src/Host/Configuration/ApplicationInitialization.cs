@@ -70,7 +70,7 @@ public static class ApplicationInitialization
             opts.ExcludedTypes.Add(typeof(RsaKeyGenerator));
             opts.ExcludedTypes.Add(typeof(JwtKeyStore));
             opts.ExcludedTypes.Add(typeof(KeyStoreRepository));
-            opts.ExcludedTypes.Add(typeof(InMemoryKeyBindingRepository));
+            opts.ExcludedTypes.Add(typeof(KeyBindingRepository));
         }, discoveryLogger)
         .AddFluentValidation();
 
