@@ -69,7 +69,7 @@ public static class AuthKitConfiguration
         services.AddSingleton<IJwtKeyStore, JwtKeyStore>();
 
         services.AddHostedService<JwtKeyStoreInitializer>();
-        services.AddSingleton<IKeyBindingRepository, InMemoryKeyBindingRepository>();
+        services.AddSingleton<IKeyBindingRepository, KeyBindingRepository>();
         services.AddSingleton<IKeyBindingService,KeyBindingService>();
     }
 }
