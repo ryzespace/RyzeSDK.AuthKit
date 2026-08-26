@@ -133,6 +133,7 @@ The host listens on the address configured in `Server:Host` (default `http://0.0
 | --- | --- |
 | Documentation index | [Docs](Docs/README.md) |
 | Schemas & Diagrams | [Schemas](Docs/Schemas.md) |
+| Architecture Decision Records | [ADRs](Docs/ADR/README.md) |
 
 ## Contributing
 
