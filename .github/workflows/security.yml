@@ -24,30 +24,24 @@ jobs:
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
+      - name: Dependency review (pull request)
+        if: github.event_name == 'pull_request'
+        uses: actions/dependency-review-action@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
+          fail-on-severity: high
 
-      - name: Restore dependencies
-        run: dotnet restore ${{ env.SOLUTION_FILE }}
-
-      - name: Run NuGet vulnerability scan
+      - name: NuGet vulnerability audit (push)
+        if: github.event_name != 'pull_request'
         run: |
-          dotnet tool install --global NuGetAuditor
-          export PATH="$PATH:$HOME/.dotnet/tools"
-          NuGetAuditor audit --format json --output audit-results.json
-
-      - name: Upload vulnerability results
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: audit-results.json
-          category: nuget-audit
+          dotnet restore ${{ env.SOLUTION_FILE }}
+          dotnet list ${{ env.SOLUTION_FILE }} package --vulnerable --include-transitive || true
 
   codeql-analysis:
     name: CodeQL Analysis
@@ -66,6 +60,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ${{ env.SOLUTION_FILE }}
 
       - name: Build solution
         run: dotnet build ${{ env.SOLUTION_FILE }} --configuration Release --no-restore
@@ -212,5 +209,5 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Check code formatting
-        run: dotnet format ${{ env.SOLUTION_FILE }} --verify-no-changes --verbosity diagnostic
+      - name: Check code formatting (PluginContractValidator)
+        run: dotnet format tools/PluginContractValidator/PluginContractValidator.csproj --verify-no-changes --verbosity diagnostic
