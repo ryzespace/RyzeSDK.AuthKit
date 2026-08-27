@@ -7,21 +7,40 @@ tasks:
       - docker build -t {{.IMAGE}}:dev -f Dockerfile .
 
   run:
-    desc: Run the container locally on :8080
-    deps: [build]
-    cmds:
-      - docker run --rm -p 8080:80 --name authkit-local {{.IMAGE}}:dev
-
-  test:
-    desc: Smoke test the built image (start, log, stop)
-    deps: [build]
+    desc: Run the local stack via docker compose (auth + Postgres)
     cmds:
       - |
-        docker run -d -p 8080:80 --name authkit-smoke {{.IMAGE}}:dev
-        sleep 15
-        docker logs authkit-smoke
-        curl -fsS http://localhost:8080/ >/dev/null && echo "HTTP OK" || echo "no HTTP endpoint (non-fatal)"
-        docker stop authkit-smoke || true
+        mkdir -p certs
+        if [ ! -f certs/devcert.pfx ]; then
+          echo "Generating self-signed dev certificate into certs/devcert.pfx ..."
+          docker run --rm -v "$(pwd)/certs:/certs" mcr.microsoft.com/dotnet/sdk:10.0 bash -c \
+            "openssl req -x509 -newkey rsa:2048 -nodes -keyout /certs/devkey.pem -out /certs/devcert.pem -days 365 -subj '/CN=localhost' && openssl pkcs12 -export -out /certs/devcert.pfx -inkey /certs/devkey.pem -in /certs/devcert.pem -passout pass: && rm -f /certs/devkey.pem /certs/devcert.pem"
+          echo "Created certs/devcert.pfx (empty password)."
+        fi
+      - docker compose up --build auth
+
+  test:
+    desc: Smoke test the stack (auth + Postgres) with a /health check
+    cmds:
+      - |
+        mkdir -p certs
+        if [ ! -f certs/devcert.pfx ]; then
+          echo "Generating self-signed dev certificate into certs/devcert.pfx ..."
+          docker run --rm -v "$(pwd)/certs:/certs" mcr.microsoft.com/dotnet/sdk:10.0 bash -c \
+            "openssl req -x509 -newkey rsa:2048 -nodes -keyout /certs/devkey.pem -out /certs/devcert.pem -days 365 -subj '/CN=localhost' && openssl pkcs12 -export -out /certs/devcert.pfx -inkey /certs/devkey.pem -in /certs/devcert.pem -passout pass: && rm -f /certs/devkey.pem /certs/devcert.pem"
+          echo "Created certs/devcert.pfx (empty password)."
+        fi
+      - docker compose up -d --build auth
+      - |
+        sleep 10
+        docker compose logs auth
+        curl -fk https://localhost:5000/health && echo " => /health OK" || echo " => /health FAILED"
+      - docker compose down
+
+  down:
+    desc: Stop the local compose stack
+    cmds:
+      - docker compose down
 
   publish:
     desc: Build multi-arch image and push to GHCR
