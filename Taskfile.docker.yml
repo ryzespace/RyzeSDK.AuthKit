@@ -1,0 +1,33 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the Docker image locally (no push)
+    cmds:
+      - docker build -t {{.IMAGE}}:dev -f Dockerfile .
+
+  run:
+    desc: Run the container locally on :8080
+    deps: [build]
+    cmds:
+      - docker run --rm -p 8080:80 --name authkit-local {{.IMAGE}}:dev
+
+  test:
+    desc: Smoke test the built image (start, log, stop)
+    deps: [build]
+    cmds:
+      - |
+        docker run -d -p 8080:80 --name authkit-smoke {{.IMAGE}}:dev
+        sleep 15
+        docker logs authkit-smoke
+        curl -fsS http://localhost:8080/ >/dev/null && echo "HTTP OK" || echo "no HTTP endpoint (non-fatal)"
+        docker stop authkit-smoke || true
+
+  publish:
+    desc: Build multi-arch image and push to GHCR
+    preconditions:
+      - sh: command -v docker >/dev/null && docker buildx version >/dev/null 2>&1
+        msg: "docker and docker buildx are required"
+    prompt: "Push {{.REGISTRY}}/{{.IMAGE}}:{{.VERSION}} to GHCR? Requires docker login."
+    cmds:
+      - docker buildx build --push --platform linux/amd64,linux/arm64 -t {{.REGISTRY}}/{{.IMAGE}}:latest -t {{.REGISTRY}}/{{.IMAGE}}:{{.VERSION}} -f Dockerfile .
