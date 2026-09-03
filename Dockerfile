@@ -28,9 +28,11 @@ FROM build AS publish
 WORKDIR /src
 RUN dotnet publish "src/Host/Host.csproj" -c Release -o /app/publish
 RUN dotnet publish "src/Plugins/Solutions/DevTokens/DevTokens.csproj" -c Release -o /app/publish/plugins/DevTokens
+COPY src/Plugins/Solutions/DevTokens/plugin.manifest.json /app/publish/plugins/DevTokens/plugin.manifest.json
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY --from=publish /app/publish/plugins ./plugins
 VOLUME /root/certs
 ENTRYPOINT ["dotnet", "Host.dll"]
