@@ -1,0 +1,16 @@
+{
+  "Id": "authkit.devtokens",
+  "Name": "DevTokens",
+  "DisplayName": "Developer Tokens",
+  "Description": "Issues and validates developer tokens for SDK access.",
+  "Version": "1.0.0",
+  "Author": "AuthKit Contributors",
+  "License": "MIT",
+  "LicenseUrl": "https://opensource.org/licenses/MIT",
+  "Homepage": "https://example.org/devtokens",
+  "RepositoryUrl": "https://example.org/devtokens.git",
+  "Tags": ["devtokens", "auth"],
+  "Priority": 0,
+  "IsEnabled": true,
+  "DependsOn": []
+}

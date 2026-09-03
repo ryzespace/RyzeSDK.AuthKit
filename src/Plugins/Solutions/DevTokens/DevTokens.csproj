@@ -19,4 +19,7 @@
     <ProjectReference Include="..\..\..\Core\Core.csproj" />
     <ProjectReference Include="..\..\Abstractions\AuthKit.Plugins.Abstractions.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="plugin.manifest.json" />
+  </ItemGroup>
 </Project>

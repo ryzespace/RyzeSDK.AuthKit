@@ -1,6 +1,8 @@
-using DevTokens.DeveloperTokens;
 using DevTokens.Options;
 using AuthKit.Plugins.Abstractions;
+using AuthKit.Plugins.Abstractions.Contracts;
+using AuthKit.Plugins.Abstractions.Contracts.SecuritySchemes;
+using AuthKit.Plugins.Abstractions.Models;
 using FluentValidation;
 using DevTokens.Interfaces;
 using DevTokens.Middleware;
@@ -33,21 +35,31 @@ namespace DevTokens;
 /// </remarks>
 public sealed class DevTokensPlugin : IAuthKitPlugin
 {
+    public string Id => "authkit.devtokens";
+
     /// <summary>
     /// Gets the unique name of the plugin.
     /// </summary>
     public string Name => "DevTokens";
 
+    public string? DisplayName => "Developer Tokens";
+
     /// <summary>
     /// Gets the current version of the plugin.
     /// </summary>
-    public string Version => "1.0.0";
+    public SemanticVersion Version => new(1, 0, 0);
 
     /// <summary>
     /// Gets a description of the functionality provided by the plugin.
     /// </summary>
     public string Description =>
         "Issues and validates developer tokens for SDK access.";
+
+    public string? Author => "AuthKit Contributors";
+    public string? License => "MIT";
+    public string? LicenseUrl => "https://opensource.org/licenses/MIT";
+    public string? Homepage => "https://example.org/devtokens";
+    public string? RepositoryUrl => "https://example.org/devtokens.git";
 
     /// <summary>
     /// Registers developer token services, repositories, validators,
