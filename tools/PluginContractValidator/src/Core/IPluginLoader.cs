@@ -3,7 +3,7 @@ using AuthKit.Plugins.Abstractions.Contracts;
 namespace PluginContractValidator.Core;
 
 /// <summary>
-/// Loads a plugin entry assembly and instantiates its <see cref="IAuthKitPlugin"/> implementation.
+/// Loads plugin entry assembly and instantiates its <see cref="IAuthKitPlugin"/> implementation.
 /// </summary>
 public interface IPluginLoader
 {
