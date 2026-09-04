@@ -42,7 +42,7 @@ public sealed class DevTokensPlugin : IAuthKitPlugin
     /// </summary>
     public string Name => "DevTokens";
 
-    public string? DisplayName => "Developer Tokens";
+    public string DisplayName => "Developer Tokens";
 
     /// <summary>
     /// Gets the current version of the plugin.
@@ -55,11 +55,11 @@ public sealed class DevTokensPlugin : IAuthKitPlugin
     public string Description =>
         "Issues and validates developer tokens for SDK access.";
 
-    public string? Author => "AuthKit Contributors";
-    public string? License => "MIT";
-    public string? LicenseUrl => "https://opensource.org/licenses/MIT";
-    public string? Homepage => "https://example.org/devtokens";
-    public string? RepositoryUrl => "https://example.org/devtokens.git";
+    public string Author => "AuthKit Contributors";
+    public string License => "MIT";
+    public string LicenseUrl => "https://opensource.org/licenses/MIT";
+    public string Homepage => "https://example.org/devtokens";
+    public string RepositoryUrl => "https://example.org/devtokens.git";
 
     /// <summary>
     /// Registers developer token services, repositories, validators,
