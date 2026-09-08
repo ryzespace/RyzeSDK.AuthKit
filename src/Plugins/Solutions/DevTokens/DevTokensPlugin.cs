@@ -1,8 +1,8 @@
 using DevTokens.Options;
 using AuthKit.Plugins.Abstractions;
 using AuthKit.Plugins.Abstractions.Contracts;
+using AuthKit.Plugins.Abstractions.Contracts.Plugins;
 using AuthKit.Plugins.Abstractions.Contracts.SecuritySchemes;
-using AuthKit.Plugins.Abstractions.Models;
 using FluentValidation;
 using DevTokens.Interfaces;
 using DevTokens.Middleware;
@@ -33,34 +33,23 @@ namespace DevTokens;
 /// infrastructure.
 /// </para>
 /// </remarks>
+[PluginMetadata(
+    id: "authkit.devtokens",
+    version: "1.0.0",
+    tags: ["auth", "tokens", "sdk"],
+    dependsOn: [],
+    capabilities: ["auth"],
+    name: "DevTokens",
+    displayName: "Developer Tokens",
+    description: "Issues and validates developer tokens for SDK access.",
+    author: "AuthKit Contributors",
+    license: "MIT",
+    licenseUrl: "https://opensource.org/licenses/MIT",
+    homepage: "https://example.org/devtokens",
+    repositoryUrl: "https://example.org/devtokens.git"
+)]
 public sealed class DevTokensPlugin : IAuthKitPlugin
 {
-    public string Id => "authkit.devtokens";
-
-    /// <summary>
-    /// Gets the unique name of the plugin.
-    /// </summary>
-    public string Name => "DevTokens";
-
-    public string DisplayName => "Developer Tokens";
-
-    /// <summary>
-    /// Gets the current version of the plugin.
-    /// </summary>
-    public SemanticVersion Version => new(1, 0, 0);
-
-    /// <summary>
-    /// Gets a description of the functionality provided by the plugin.
-    /// </summary>
-    public string Description =>
-        "Issues and validates developer tokens for SDK access.";
-
-    public string Author => "AuthKit Contributors";
-    public string License => "MIT";
-    public string LicenseUrl => "https://opensource.org/licenses/MIT";
-    public string Homepage => "https://example.org/devtokens";
-    public string RepositoryUrl => "https://example.org/devtokens.git";
-
     /// <summary>
     /// Registers developer token services, repositories, validators,
     /// and authorization components in the dependency injection container.
