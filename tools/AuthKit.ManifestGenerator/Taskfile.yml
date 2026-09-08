@@ -1,0 +1,43 @@
+version: '3'
+
+vars:
+  PROJECT_ROOT: .
+  CORE_PROJECT: Core/AuthKit.ManifestGenerator.Core.csproj
+  CLI_PROJECT: CLI/AuthKit.ManifestGenerator.CLI.csproj
+  CONFIGURATION: Debug
+  EXAMPLE_INPUT: examples/example.dll
+  EXAMPLE_OUTPUT: examples/manifest.json
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+tasks:
+  default:
+    desc: Wyświetla dostępne zadania
+    cmds:
+      - task --list
+
+  build:
+    desc: Buduje cały projekt bez przywracania pakietów
+    cmds:
+      - dotnet build {{.CORE_PROJECT}} --configuration {{.CONFIGURATION}} --no-restore
+      - dotnet build {{.CLI_PROJECT}} --configuration {{.CONFIGURATION}} --no-restore
+
+  clean:
+    desc: Czyści cały projekt
+    cmds:
+      - dotnet clean {{.CORE_PROJECT}} --configuration {{.CONFIGURATION}}
+      - dotnet clean {{.CLI_PROJECT}} --configuration {{.CONFIGURATION}}
+
+  run:
+    desc: Uruchamia CLI AuthKit.ManifestGenerator
+    deps:
+      - build
+    cmds:
+      - mkdir -p examples
+      - dotnet run --project {{.CLI_PROJECT}} --configuration {{.CONFIGURATION}} --no-build -- --input {{.EXAMPLE_INPUT}} --output {{.EXAMPLE_OUTPUT}}
+
+  example:
+    desc: Generuje przykładowy manifest
+    deps:
+      - run
