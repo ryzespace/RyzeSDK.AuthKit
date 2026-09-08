@@ -1,6 +1,8 @@
-using PluginContractValidator;
-using PluginContractValidator.Core;
-using PluginContractValidator.Rules;
+using System;
+using System.IO;
+using AuthKit.PluginContractValidator;
+using AuthKit.PluginContractValidator.Core;
+using AuthKit.PluginContractValidator.Rules;
 
 var pluginsRoot = args.Length > 0 ? args[0] : "src/Plugins";
 

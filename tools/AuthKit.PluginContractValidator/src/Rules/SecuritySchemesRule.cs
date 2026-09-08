@@ -1,8 +1,12 @@
-using AuthKit.Plugins.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using AuthKit.PluginContractValidator.Core;
 using AuthKit.Plugins.Abstractions.Contracts;
-using PluginContractValidator.Core;
+using AuthKit.Plugins.Abstractions.Contracts.SecuritySchemes;
 
-namespace PluginContractValidator.Rules;
+namespace AuthKit.PluginContractValidator.Rules;
 
 /// <summary>
 /// Ensures contributed OpenAPI security schemes are present and consistently keyed.

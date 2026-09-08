@@ -1,9 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Threading;
+using AuthKit.PluginContractValidator.Core;
 using AuthKit.Plugins.Abstractions.Contracts;
-using PluginContractValidator.Core;
 
-namespace PluginContractValidator;
+namespace AuthKit.PluginContractValidator;
 
 /// <summary>
 /// Loads a plugin entry assembly using the same isolation model as the AuthKit host.
@@ -107,7 +111,7 @@ public sealed class PluginAssemblyLoader : IPluginLoader
         {
             Resolvers.Add(resolver);
             if (_handler is not null) return;
-
+            
             _handler = (context, name) =>
             {
                 for (var i = Resolvers.Count - 1; i >= 0; i--)

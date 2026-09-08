@@ -1,9 +1,13 @@
-using AuthKit.Plugins.Abstractions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using AuthKit.PluginContractValidator.Core;
 using AuthKit.Plugins.Abstractions.Contracts;
 using Microsoft.AspNetCore.Http;
-using PluginContractValidator.Core;
 
-namespace PluginContractValidator.Rules;
+namespace AuthKit.PluginContractValidator.Rules;
 
 /// <summary>
 /// Ensures a contributed middleware type follows the AuthKit middleware convention.

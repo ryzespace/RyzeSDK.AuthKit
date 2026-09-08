@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using AuthKit.PluginContractValidator.Core;
 using AuthKit.Plugins.Abstractions.Contracts;
-using PluginContractValidator.Core;
 
-namespace PluginContractValidator.Rules;
+namespace AuthKit.PluginContractValidator.Rules;
 
 /// <summary>
 /// Ensures plugin metadata (Name, Version) is present and well-formed.

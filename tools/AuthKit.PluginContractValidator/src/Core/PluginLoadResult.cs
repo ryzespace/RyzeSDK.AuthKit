@@ -1,4 +1,6 @@
-namespace PluginContractValidator.Core;
+using System.Collections.Generic;
+
+namespace AuthKit.PluginContractValidator.Core;
 
 /// <summary>
 /// Encapsulates the outcome of attempting to load a plugin assembly.

@@ -1,4 +1,8 @@
-namespace PluginContractValidator;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AuthKit.PluginContractValidator.Core;
 
 /// <summary>
 /// Runs every registered <see cref="IPluginContractRule"/> against a loaded plugin and
@@ -11,8 +15,6 @@ namespace PluginContractValidator;
 /// <param name="rules">The contract rules to execute for each plugin.</param>
 public sealed class ContractValidator(IEnumerable<IPluginContractRule> rules)
 {
-    private readonly IEnumerable<IPluginContractRule> _rules = rules;
-
     /// <summary>
     /// Validates the supplied plugin against all registered rules.
     /// </summary>
@@ -25,7 +27,7 @@ public sealed class ContractValidator(IEnumerable<IPluginContractRule> rules)
     {
         var errors = new List<string>();
 
-        foreach (var rule in _rules)
+        foreach (var rule in rules)
         {
             cancellationToken.ThrowIfCancellationRequested();
             errors.AddRange(await rule.ValidateAsync(plugin, cancellationToken));

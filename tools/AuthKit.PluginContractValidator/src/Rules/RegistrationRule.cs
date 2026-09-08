@@ -1,9 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using AuthKit.PluginContractValidator.Core;
 using AuthKit.Plugins.Abstractions.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PluginContractValidator.Core;
 
-namespace PluginContractValidator.Rules;
+namespace AuthKit.PluginContractValidator.Rules;
 
 /// <summary>
 /// Ensures <c>ConfigureServices</c> registers dependencies without throwing and that the
@@ -16,11 +20,14 @@ public sealed class RegistrationRule : IPluginContractRule
 
     /// <summary>
     /// Invokes <see cref="IAuthKitPlugin.ConfigureServices"/> against a fresh service collection
-    /// and then builds the <see cref="IServiceProvider"/> to confirm the dependency graph is
+    /// and then builds the <see cref="plugin"/> to confirm the dependency graph is
     /// constructible.
     /// </summary>
-    /// <param name="plugin">The loaded plugin to validate.</param>
-    /// <param name="cancellationToken">A token that can be used to cancel the validation.</param>
+    /// <param name="plugin"></param>
+    /// <param name="cancellationToken">
+    ///     The loaded plugin to validate.
+    ///     A token that can be used to cancel the validation.
+    /// </param>
     /// <returns>The list of registration violations; empty when registration succeeds.</returns>
     public Task<IReadOnlyList<string>> ValidateAsync(
         LoadedPlugin plugin,

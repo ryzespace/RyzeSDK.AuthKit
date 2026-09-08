@@ -1,6 +1,6 @@
 using AuthKit.Plugins.Abstractions.Contracts;
 
-namespace PluginContractValidator.Core;
+namespace AuthKit.PluginContractValidator.Core;
 
 /// <summary>
 /// Loads plugin entry assembly and instantiates its <see cref="IAuthKitPlugin"/> implementation.

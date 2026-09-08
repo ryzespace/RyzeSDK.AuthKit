@@ -1,4 +1,8 @@
-namespace PluginContractValidator.Core;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace AuthKit.PluginContractValidator.Core;
 
 /// <summary>
 /// Validates single contract concern of loaded plugin.

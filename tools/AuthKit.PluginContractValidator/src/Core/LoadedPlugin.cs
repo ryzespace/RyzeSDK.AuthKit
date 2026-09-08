@@ -1,7 +1,7 @@
 using System.Reflection;
 using AuthKit.Plugins.Abstractions.Contracts;
 
-namespace PluginContractValidator.Core;
+namespace AuthKit.PluginContractValidator.Core;
 
 /// <summary>
 /// Represents a plugin assembly that has been successfully loaded and instantiated
