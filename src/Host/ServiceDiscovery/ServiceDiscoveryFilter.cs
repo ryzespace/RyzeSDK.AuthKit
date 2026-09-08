@@ -94,8 +94,25 @@ public static class ServiceDiscoveryFilter
     private static bool ShouldInclude(Type type, string ns, string layer, ServiceDiscoveryOptions opts)
         => !(opts.SkipInterfaces && type.IsInterface)
            && !(opts.SkipExceptions && typeof(Exception).IsAssignableFrom(type))
+           && !IsRecordLike(type)
            && !opts.ExcludedTypes.Contains(type)
            && !opts.ExcludedNamespaces.Any(ns.Contains)
            && (opts.AllowedNamespaces.Count == 0 || opts.AllowedNamespaces.Any(ns.Contains))
            && (opts.AllowedLayers.Count == 0 || opts.AllowedLayers.Contains(layer));
+
+    /// <summary>
+    /// Detects record types (value objects, DTOs, entities) which are data
+    /// structures rather than injectable services.
+    /// </summary>
+    /// <remarks>
+    /// Records implicitly implement <see cref="IEquatable{T}"/> for their own type.
+    /// Such types are constructed explicitly by application code and must not be
+    /// registered as services, since their constructors are not resolvable from
+    /// the dependency injection container.
+    /// </remarks>
+    private static bool IsRecordLike(Type type)
+        => type.GetInterfaces().Any(i =>
+            i.IsGenericType &&
+            i.GetGenericTypeDefinition() == typeof(IEquatable<>) &&
+            i.GetGenericArguments()[0] == type);
 }
