@@ -1,43 +1,43 @@
 version: '3'
 
 vars:
-  PROJECT_ROOT: .
-  CORE_PROJECT: Core/AuthKit.ManifestGenerator.Core.csproj
-  CLI_PROJECT: CLI/AuthKit.ManifestGenerator.CLI.csproj
-  CONFIGURATION: Debug
-  EXAMPLE_INPUT: examples/example.dll
-  EXAMPLE_OUTPUT: examples/manifest.json
+  PROJECT_ROOT: .                     # Root directory of the project
+  CORE_PROJECT: Core/AuthKit.ManifestGenerator.Core.csproj  # Path to the Core project
+  CLI_PROJECT: CLI/AuthKit.ManifestGenerator.CLI.csproj      # Path to the CLI project
+  CONFIGURATION: Debug                 # Build configuration (Debug/Release)
+  EXAMPLE_INPUT: examples/example.dll  # Example input DLL file
+  EXAMPLE_OUTPUT: examples/manifest.json  # Output manifest file
 
 env:
-  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1      # Disables .NET CLI telemetry
 
 tasks:
   default:
-    desc: Wyświetla dostępne zadania
+    desc: Lists available tasks
     cmds:
       - task --list
 
   build:
-    desc: Buduje cały projekt bez przywracania pakietów
+    desc: Builds the entire project without restoring packages
     cmds:
       - dotnet build {{.CORE_PROJECT}} --configuration {{.CONFIGURATION}} --no-restore
       - dotnet build {{.CLI_PROJECT}} --configuration {{.CONFIGURATION}} --no-restore
 
   clean:
-    desc: Czyści cały projekt
+    desc: Cleans the entire project (deletes build artifacts)
     cmds:
       - dotnet clean {{.CORE_PROJECT}} --configuration {{.CONFIGURATION}}
       - dotnet clean {{.CLI_PROJECT}} --configuration {{.CONFIGURATION}}
 
   run:
-    desc: Uruchamia CLI AuthKit.ManifestGenerator
+    desc: Runs the AuthKit.ManifestGenerator CLI
     deps:
-      - build
+      - build  # Ensures the project is built before running
     cmds:
       - mkdir -p examples
       - dotnet run --project {{.CLI_PROJECT}} --configuration {{.CONFIGURATION}} --no-build -- --input {{.EXAMPLE_INPUT}} --output {{.EXAMPLE_OUTPUT}}
 
   example:
-    desc: Generuje przykładowy manifest
+    desc: Generates an example manifest
     deps:
       - run
