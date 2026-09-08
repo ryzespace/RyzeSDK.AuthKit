@@ -4,6 +4,7 @@ using AuthKit.Plugins.Abstractions.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
+using System.Reflection;
 
 namespace AuthKit.Plugins.Abstractions.Contracts;
 
@@ -35,7 +36,7 @@ public interface IAuthKitPlugin
     /// is expected to be non-empty and stable across restarts. The host is
     /// responsible for validating format and uniqueness before activation.
     /// </remarks>
-    string Id { get; }
+    string Id => Metadata.Id;
 
     /// <summary>
     /// Gets the unique name of the plugin.
@@ -44,7 +45,7 @@ public interface IAuthKitPlugin
     /// The name is used to identify the plugin in host diagnostics,
     /// startup output, and other plugin-related metadata.
     /// </remarks>
-    string Name { get; }
+    string Name => Metadata.Name;
 
     /// <summary>
     /// Gets an optional human-readable display name for UIs.
@@ -53,7 +54,7 @@ public interface IAuthKitPlugin
     /// The host UI should display <c>DisplayName ?? Name</c> when presenting
     /// the plugin to users.
     /// </remarks>
-    string? DisplayName => null;
+    string? DisplayName => Metadata.DisplayName;
 
     /// <summary>
     /// Gets an optional human-readable description of the plugin.
@@ -62,7 +63,7 @@ public interface IAuthKitPlugin
     /// The host may display the description in startup output,
     /// diagnostics, administrative interfaces, or other status surfaces.
     /// </remarks>
-    string? Description => null;
+    string? Description => Metadata.Description;
 
     /// <summary>
     /// Gets the version of the plugin as a semantic version (SemVer 2.0.0).
@@ -71,32 +72,32 @@ public interface IAuthKitPlugin
     /// The Version replaces the previous string-based version and exposes
     /// full semantic version semantics (parsing, equality, precedence).
     /// </remarks>
-    SemanticVersion Version { get; }
+    SemanticVersion Version => SemanticVersion.Parse(Metadata.Version);
 
     /// <summary>
     /// Optional author metadata, visible in catalogs and diagnostics.
     /// </summary>
-    string? Author => null;
+    string? Author => Metadata.Author;
 
     /// <summary>
     /// Optional SPDX-style license string (no validation performed by host).
     /// </summary>
-    string? License => null;
+    string? License => Metadata.License;
 
     /// <summary>
     /// Optional absolute URI pointing to the license text.
     /// </summary>
-    string? LicenseUrl => null;
+    string? LicenseUrl => Metadata.LicenseUrl;
 
     /// <summary>
     /// Optional absolute HTTP/HTTPS URI pointing to a plugin homepage.
     /// </summary>
-    string? Homepage => null;
+    string? Homepage => Metadata.Homepage;
 
     /// <summary>
     /// Optional absolute HTTP/HTTPS URI pointing to the plugin repository.
     /// </summary>
-    string? RepositoryUrl => null;
+    string? RepositoryUrl => Metadata.RepositoryUrl;
 
     /// <summary>
     /// Optional classification tags for UI filtering. Defaults to empty.
@@ -107,7 +108,7 @@ public interface IAuthKitPlugin
     /// Tags are case-sensitive strings without controlled vocabulary.
     /// Example: ["security", "auth", "audit"].
     /// </remarks>
-    IReadOnlyList<string> Tags => Array.Empty<string>();
+    IReadOnlyList<string> Tags => Metadata.Tags;
 
     /// <summary>
     /// Priority used for activation ordering among dependency-ready plugins.
@@ -120,7 +121,7 @@ public interface IAuthKitPlugin
     /// Dependency order (G7) wins over Priority.
     /// Example: A (p. 100) → B (p-100, DependsOn A), C (p. 0) ⇒ order: A, C, B.
     /// </remarks>
-    int Priority => 0;
+    int Priority => Metadata.Priority;
 
     /// <summary>
     /// Indicates whether the plugin is enabled. Defaults to true.
@@ -130,7 +131,7 @@ public interface IAuthKitPlugin
     /// For plugins accepted by the preload gate and subsequently loaded,
     /// <c>manifest.IsEnabled == instance.IsEnabled</c> is part of consistency validation.
     /// </remarks>
-    bool IsEnabled => true;
+    bool IsEnabled => Metadata.IsEnabled;
 
     /// <summary>
     /// Features/capabilities exposed by the plugin. Contract
@@ -142,11 +143,20 @@ public interface IAuthKitPlugin
     /// <see cref="PluginExtensions.Supports(AuthKit.Plugins.Abstractions.Contracts.IAuthKitPlugin,string)"/> extension method.
     /// Example: <c>plugin.Supports("auth")</c>.
     /// </remarks>
-    IReadOnlySet<string> Capabilities => EmptyCapabilities;
+    IReadOnlySet<string> Capabilities => _capabilities ??=
+        System.Collections.Immutable.ImmutableHashSet.CreateRange(StringComparer.OrdinalIgnoreCase, Metadata.Capabilities);
+
+    /// <summary>
+    /// Gets the metadata associated with the plugin.
+    /// </summary>
+    PluginMetadataAttribute Metadata => GetType().GetCustomAttribute<PluginMetadataAttribute>()
+        ?? throw new InvalidOperationException($"Plugin {GetType().Name} is missing [PluginMetadata] attribute.");
 
     // Shared immutable empty capabilities set with OrdinalIgnoreCase comparer
     private static readonly IReadOnlySet<string> EmptyCapabilities =
         System.Collections.Immutable.ImmutableHashSet.Create<string>(StringComparer.OrdinalIgnoreCase);
+
+    private static IReadOnlySet<string>? _capabilities;
 
     /// <summary>
     /// Registers the plugin's services in the host dependency injection container.
@@ -224,7 +234,7 @@ public interface IAuthKitPlugin
     /// <remarks>
     /// If the host version is lower than <see cref="MinHostVersion"/>, the plugin is rejected.
     /// </remarks>
-    SemanticVersion? MinHostVersion => null;
+    SemanticVersion? MinHostVersion => string.IsNullOrEmpty(Metadata.MinHostVersion) ? null : SemanticVersion.Parse(Metadata.MinHostVersion);
 
     /// <summary>
     /// Gets the list of plugin IDs this plugin depends on.
@@ -236,7 +246,7 @@ public interface IAuthKitPlugin
     /// - There are no duplicate dependencies.
     /// - There are no dependency cycles.
     /// </remarks>
-    IReadOnlyList<string> DependsOn => Array.Empty<string>();
+    IReadOnlyList<string> DependsOn => Metadata.DependsOn;
 
     /// <summary>
     /// Gets the OpenAPI security schemes contributed by the plugin.

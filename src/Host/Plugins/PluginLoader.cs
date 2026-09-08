@@ -146,7 +146,6 @@ public static class PluginLoader
     {
         string[] manifestCandidates =
         [
-            Path.Combine(pluginDir, "plugin.manifest.json"),
             Path.Combine(pluginDir, "manifest.json"),
             Path.Combine(pluginDir, $"{pluginName}.manifest.json")
         ];
