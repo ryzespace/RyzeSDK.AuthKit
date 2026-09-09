@@ -97,9 +97,12 @@ public static class RestfulConfiguration
             {
                 AuthKitSecuritySchemeType.ApiKey => SecuritySchemeType.ApiKey,
                 AuthKitSecuritySchemeType.Http => SecuritySchemeType.Http,
-                AuthKitSecuritySchemeType.OAuth2 => SecuritySchemeType.OAuth2,
-                AuthKitSecuritySchemeType.OpenIdConnect => SecuritySchemeType.OpenIdConnect,
-                _ => throw new ArgumentOutOfRangeException(nameof(descriptor))
+                AuthKitSecuritySchemeType.OAuth2 or AuthKitSecuritySchemeType.OpenIdConnect => SecuritySchemeType.OAuth2,
+                AuthKitSecuritySchemeType.MutualTls => SecuritySchemeType.Http,
+                AuthKitSecuritySchemeType.Session => SecuritySchemeType.Http,
+                AuthKitSecuritySchemeType.Custom => SecuritySchemeType.Http,
+                AuthKitSecuritySchemeType.Basic => SecuritySchemeType.Http,
+                _ => SecuritySchemeType.Http
             },
             In = descriptor.In switch
             {
