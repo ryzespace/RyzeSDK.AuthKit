@@ -55,5 +55,26 @@ public enum AuthKitSecuritySchemeType
     /// OpenID Connect extends OAuth 2.0 with an identity layer and is used
     /// to authenticate users through an OpenID Connect identity provider.
     /// </remarks>
-    OpenIdConnect
+    OpenIdConnect = 2,
+
+    /// <summary>
+    /// Mutual TLS authentication using client certificate.
+    /// </summary>
+    MutualTls = 3,
+
+    /// <summary>
+    /// Session-based authentication.
+    /// A cookie may be used as transport mechanism but does not define the authentication mechanism itself.
+    /// </summary>
+    Session = 4,
+
+    /// <summary>
+    /// A plugin defined authentication mechanism that is not covered by the built-in security scheme types.
+    /// </summary>
+    Custom = 5,
+
+    /// <summary>
+    /// HTTP Basic authentication using the Authorization header.
+    /// </summary>
+    Basic = 6
 }
